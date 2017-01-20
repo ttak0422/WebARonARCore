@@ -17,6 +17,7 @@ group("test") {
 
 android_apk("android_webview_apk") {
   deps = [
+    "//third_party/android_tools:android_support_v7_appcompat_java",
     ":android_webview_apk_assets",
     ":android_webview_apk_resources",
     "//android_webview:android_webview_java",
@@ -26,11 +27,14 @@ android_apk("android_webview_apk") {
     "//components/policy/android:policy_java_test_support",
     "//content/public/android:content_java",
     "//ui/android:ui_java",
+    "//third_party/zxing:zxing_javalib"
   ]
 
   apk_name = "AndroidWebView"
   android_manifest = "shell/AndroidManifest.xml"
   java_files = [
+    "shell/src/org/chromium/android_webview/shell/TangoJniNative.java",
+    "shell/src/org/chromium/android_webview/shell/TangoInitializationHelper.java",
     "shell/src/org/chromium/android_webview/shell/AwShellActivity.java",
     "shell/src/org/chromium/android_webview/shell/AwShellApplication.java",
     "shell/src/org/chromium/android_webview/shell/AwShellResourceProvider.java",
@@ -46,6 +50,11 @@ android_apk("android_webview_apk") {
   shared_libraries = [
     ":libdrawgl",
     ":libstandalonelibwebviewchromium",
+  ]
+
+  loadable_modules = [
+    "../../third_party/tango/libtango_chromium/armeabi-v7a/libtango_chromium.so",
+    "../../third_party/tango/libtango_support_api/armeabi-v7a/libtango_support_api.so"  
   ]
 
   native_lib_version_rule = "//build/util:chrome_version_json"
@@ -83,6 +92,12 @@ android_assets("android_webview_apk_assets") {
     "shell/assets/visual_state_waits_for_js_detached_test.html",
     "shell/assets/visual_state_waits_for_js_test.html",
   ]
+  renaming_sources = [
+#    "shell/assets/tango/pointcloud/index.html"
+  ]
+  renaming_destinations = [
+#    "tango/pointcloud/index.html"
+  ]
 }
 
 shared_library("libstandalonelibwebviewchromium") {
@@ -90,6 +105,16 @@ shared_library("libstandalonelibwebviewchromium") {
     "../lib/main/webview_entry_point.cc",
   ]
   ldflags = [ "-Wl,-shared,-Bsymbolic" ]
+
+  ldflags += [
+    "-L../../third_party/tango/libtango_chromium/armeabi-v7a",
+    "-ltango_chromium",
+    "-L../../third_party/tango/libtango_client_api/armeabi-v7a",
+    "-ltango_client_api",
+    "-L../../third_party/tango/libtango_support_api/armeabi-v7a",
+    "-ltango_support_api"
+  ]
+
   deps = [
     "//android_webview:common",
   ]
