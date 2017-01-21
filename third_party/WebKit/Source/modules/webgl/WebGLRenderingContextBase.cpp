@@ -105,9 +105,9 @@
 
 #include "modules/vr/VRSeeThroughCamera.h"
 
-#include "TangoHandler.h"
+// #include "TangoHandler.h"
 
-using tango_chromium::TangoHandler;
+// using tango_chromium::TangoHandler;
 
 namespace blink {
 
