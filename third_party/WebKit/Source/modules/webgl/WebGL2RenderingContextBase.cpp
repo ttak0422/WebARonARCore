@@ -1301,6 +1301,17 @@ void WebGL2RenderingContextBase::texImage2D(GLenum target,
                                         type, imageBitMap, exceptionState);
 }
 
+void WebGL2RenderingContextBase::texImage2D(GLenum target, 
+                                            GLint level, 
+                                            GLint internalformat, 
+                                            GLenum format, 
+                                            GLenum type, 
+                                            VRSeeThroughCamera* seeThroughCamera)
+{
+  WebGLRenderingContextBase::texImage2D(target, level, internalformat, format, 
+                                        type, seeThroughCamera);
+}
+
 void WebGL2RenderingContextBase::texSubImage2D(GLenum target,
                                                GLint level,
                                                GLint xoffset,

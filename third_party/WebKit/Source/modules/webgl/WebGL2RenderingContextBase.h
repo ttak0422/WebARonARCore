@@ -246,6 +246,12 @@ class WebGL2RenderingContextBase : public WebGLRenderingContextBase {
                   GLenum,
                   HTMLVideoElement*,
                   ExceptionState&);
+  void texImage2D(GLenum target, 
+                  GLint level, 
+                  GLint internalformat,
+                  GLenum format, 
+                  GLenum type, 
+                  VRSeeThroughCamera*);
   void texImage2D(GLenum,
                   GLint,
                   GLint,

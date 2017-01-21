@@ -103,6 +103,12 @@
 #include "wtf/typed_arrays/ArrayBufferContents.h"
 #include <memory>
 
+#include "modules/vr/VRSeeThroughCamera.h"
+
+#include "TangoHandler.h"
+
+using tango_chromium::TangoHandler;
+
 namespace blink {
 
 namespace {
@@ -1090,6 +1096,8 @@ WebGLRenderingContextBase::WebGLRenderingContextBase(
       m_isOESTextureHalfFloatFormatsTypesAdded(false),
       m_isWebGLDepthTextureFormatsTypesAdded(false),
       m_isEXTsRGBFormatsTypesAdded(false),
+      m_cameraImageRGB(0),
+      m_cameraImageTextureId(0),
       m_version(version) {
   ASSERT(contextProvider);
 
@@ -1338,6 +1346,10 @@ unsigned WebGLRenderingContextBase::getWebGLVersion(
 }
 
 WebGLRenderingContextBase::~WebGLRenderingContextBase() {
+
+  delete [] m_cameraImageRGB;
+  m_cameraImageRGB = 0;
+
   // Now that the context and context group no longer hold on to the
   // objects they create, and now that the objects are eagerly finalized
   // rather than the context, there is very little useful work that this
@@ -1826,6 +1838,9 @@ void WebGLRenderingContextBase::bindTexture(GLenum target,
   // platforms is fairly involved (will require a HashMap from texture ID
   // in all ports), and we have not had any complaints, so the logic has
   // been removed.
+
+  m_cameraImageTextureId = objectOrZero(texture);
+
 }
 
 void WebGLRenderingContextBase::blendColor(GLfloat red,
@@ -4839,6 +4854,106 @@ void WebGLRenderingContextBase::texImage2D(GLenum target,
   texImageHelperImageData(TexImage2D, target, level, internalformat, 0, format,
                           type, 1, 0, 0, 0, pixels, getImageDataSize(pixels),
                           0);
+}
+
+void WebGLRenderingContextBase::texImageHelperVRSeeThroughCamera(
+  TexImageFunctionID functionID,
+  GLenum target, 
+  GLint level, 
+  GLint internalformat, 
+  GLint border, 
+  GLenum format,
+  GLenum type, 
+  GLsizei depth, 
+  GLint xoffset, 
+  GLint yoffset, 
+  GLint zoffset, 
+  VRSeeThroughCamera* seeThroughCamera)
+{
+
+#ifdef TANGO_USE_YUV_CAMERA
+
+  const char* funcName = getTexImageFunctionName(functionID);
+  if (isContextLost())
+    return;
+  if (!seeThroughCamera) {
+    synthesizeGLError(GL_INVALID_VALUE, funcName, "no see through camera");
+    return;
+  }
+  if (!validateTexImageBinding(funcName, functionID, target))
+    return;
+  TexImageFunctionType functionType;
+  if (functionID == TexImage2D)
+    functionType = TexImage;
+  else
+    functionType = TexSubImage;
+
+  GLuint width, height;
+  if (!TangoHandler::getInstance()->getCameraImageTextureSize(&width, &height)) {
+    synthesizeGLError(GL_INVALID_VALUE, funcName, "no camera image size yet");
+    return;
+  }
+
+  if (!validateTexFunc(funcName, functionType, SourceImageData, target, level, internalformat, width, height, depth, border, format, type, xoffset, yoffset, zoffset))
+    return;
+
+  if (m_cameraImageRGB == 0) {
+    m_cameraImageRGB = new uint8_t[width * height * 3];
+  }
+  if (!TangoHandler::getInstance()->getCameraImageRGB(m_cameraImageRGB)) {
+    synthesizeGLError(GL_INVALID_VALUE, funcName, "no camera image yet");
+    return;
+  }
+
+  Vector<uint8_t> data;
+  bool needConversion = true;
+  // The data from ImageData is always of format RGBA8.
+  // No conversion is needed if destination format is RGBA and type is USIGNED_BYTE and no Flip or Premultiply operation is required.
+  if (!m_unpackFlipY && !m_unpackPremultiplyAlpha && format == GL_RGB && type == GL_UNSIGNED_BYTE) {
+    needConversion = false;
+  } else {
+    if (type == GL_UNSIGNED_INT_10F_11F_11F_REV) {
+      // The UNSIGNED_INT_10F_11F_11F_REV type pack/unpack isn't implemented.
+      type = GL_FLOAT;
+    }
+    // if (!WebGLImageConversion::extractImageData(m_cameraImageRGB, WebGLImageConversion::DataFormat::DataFormatRGB, IntSize(width, height), format, type, m_unpackFlipY, m_unpackPremultiplyAlpha, data)) {
+    if (!WebGLImageConversion::extractTextureData(width, height, format, type, m_unpackAlignment, m_unpackFlipY, m_unpackPremultiplyAlpha, m_cameraImageRGB, data)) {
+      synthesizeGLError(GL_INVALID_VALUE, funcName, "bad image data");
+      return;
+    }
+  }
+
+  resetUnpackParameters();
+  if (functionID == TexImage2D) {
+    texImage2DBase(target, level, internalformat, width, height, border, format, type, needConversion ? data.data() : m_cameraImageRGB);
+  } else if (functionID == TexSubImage2D) {
+    contextGL()->TexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, needConversion ? data.data() : m_cameraImageRGB);
+  } else {
+    DCHECK_EQ(functionID, TexSubImage3D);
+    contextGL()->TexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, needConversion ? data.data() : m_cameraImageRGB);
+  }
+  restoreUnpackParameters();
+
+#else
+
+  if (m_cameraImageTextureId != 0) 
+  {
+    contextGL()->UpdateTextureExternalOes(m_cameraImageTextureId);
+    contextGL()->Finish();
+  }
+
+#endif
+
+}
+
+void WebGLRenderingContextBase::texImage2D(GLenum target, 
+                                           GLint level, 
+                                           GLint internalformat,
+                                           GLenum format, 
+                                           GLenum type, 
+                                           VRSeeThroughCamera* seeThroughCamera)
+{
+  texImageHelperVRSeeThroughCamera(TexImage2D, target, level, internalformat, 0, format, type, 1, 0, 0, 0, seeThroughCamera);
 }
 
 void WebGLRenderingContextBase::texImageHelperHTMLImageElement(

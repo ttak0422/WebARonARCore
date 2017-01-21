@@ -102,6 +102,8 @@ class WebGLVertexArrayObjectBase;
 
 class WebGLRenderingContextErrorMessageCallback;
 
+class VRSeeThroughCamera;
+
 // This class uses the color mask to prevent drawing to the alpha channel, if
 // the DrawingBuffer requires RGB emulation.
 class ScopedRGBEmulationColorMask {
@@ -380,6 +382,12 @@ class MODULES_EXPORT WebGLRenderingContextBase : public CanvasRenderingContext,
                   GLenum type,
                   ImageBitmap*,
                   ExceptionState&);
+  void texImage2D(GLenum target, 
+                  GLint level, 
+                  GLint internalformat,
+                  GLenum format, 
+                  GLenum type, 
+                  VRSeeThroughCamera*);
 
   void texParameterf(GLenum target, GLenum pname, GLfloat param);
   void texParameteri(GLenum target, GLenum pname, GLint param);
@@ -1618,6 +1626,18 @@ class MODULES_EXPORT WebGLRenderingContextBase : public CanvasRenderingContext,
                                  GLsizei,
                                  GLint,
                                  ExceptionState&);
+  void texImageHelperVRSeeThroughCamera(TexImageFunctionID, 
+                                        GLenum, 
+                                        GLint, 
+                                        GLint, 
+                                        GLint, 
+                                        GLenum, 
+                                        GLenum, 
+                                        GLsizei, 
+                                        GLint, 
+                                        GLint, 
+                                        GLint, 
+                                        VRSeeThroughCamera*);
   static const char* getTexImageFunctionName(TexImageFunctionID);
   IntRect sentinelEmptyRect();
   IntRect safeGetImageSize(Image*);
@@ -1656,6 +1676,10 @@ class MODULES_EXPORT WebGLRenderingContextBase : public CanvasRenderingContext,
   void texImageBitmapByGPU(ImageBitmap*, GLuint, GLenum, GLenum, GLint, bool);
 
   sk_sp<SkImage> makeImageSnapshot(SkImageInfo&);
+
+  uint8_t* m_cameraImageRGB;
+  GLuint m_cameraImageTextureId;
+  
   const unsigned m_version;
 
   bool isPaintable() const final { return drawingBuffer(); }
