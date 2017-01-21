@@ -31,6 +31,8 @@ struct VRDisplayCapabilities {
   bool hasPosition;
   bool hasExternalDisplay;
   bool canPresent;
+  bool hasPointCloud;
+  bool hasSeeThroughCamera;
 };
 
 // Information about the optical properties for an eye in a VRDisplay.
@@ -39,6 +41,28 @@ struct VREyeParameters {
   array<float, 3> offset;
   uint32 renderWidth;
   uint32 renderHeight;
+};
+
+struct VRPointCloud {
+  uint32 numberOfPoints;
+  array<float>? points;
+};
+
+struct VRPickingPointAndPlane {
+  array<double, 3> point;
+  array<double, 4> plane;
+};
+
+struct VRSeeThroughCamera {
+  uint32 width;
+  uint32 height;
+  uint32 textureWidth;
+  uint32 textureHeight;
+  double focalLengthX;
+  double focalLengthY;
+  double pointX;
+  double pointY;
+  int64 orientation;
 };
 
 struct VRStageParameters {
@@ -87,6 +111,15 @@ interface VRDisplay {
   [Sync]
   GetPose() => (VRPose? pose);
   ResetPose();
+
+  [Sync]
+  GetMaxNumberOfPointsInPointCloud() => (uint32 maxNumberOfPointsInPointCloud);
+  [Sync]
+  GetPointCloud(bool justUpdatePointCloud, uint32 pointsToSkip) => (VRPointCloud pointCloud);
+  [Sync]
+  GetSeeThroughCamera() => (VRSeeThroughCamera seeThroughCamera);
+  [Sync]
+  GetPickingPointAndPlaneInPointCloud(float x, float y) => (VRPickingPointAndPlane? pointAndPlane);
 
   RequestPresent(bool secureOrigin) => (bool success);
   ExitPresent();

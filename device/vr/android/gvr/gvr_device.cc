@@ -42,6 +42,8 @@ mojom::VRDisplayInfoPtr GvrDevice::GetVRDevice() {
   device->capabilities->hasPosition = false;
   device->capabilities->hasExternalDisplay = false;
   device->capabilities->canPresent = true;
+  device->capabilities->hasPointCloud = false;
+  device->capabilities->hasSeeThroughCamera = false;
 
   device->leftEye = mojom::VREyeParameters::New();
   device->rightEye = mojom::VREyeParameters::New();
@@ -219,6 +221,26 @@ void GvrDevice::ResetPose() {
   // those devices recentering should only be done via the controller.
   if (gvr_api && gvr_api->GetViewerType() == GVR_VIEWER_TYPE_CARDBOARD)
     gvr_api->RecenterTracking();
+}
+
+unsigned GvrDevice::GetMaxNumberOfPointsInPointCloud()
+{
+  return 0;
+}
+
+mojom::VRPointCloudPtr GvrDevice::GetPointCloud(bool justUpdatePointCloud, unsigned pointsToSkip)
+{
+  return nullptr;
+}
+
+mojom::VRSeeThroughCameraPtr GvrDevice::GetSeeThroughCamera()
+{
+  return nullptr;
+}
+
+mojom::VRPickingPointAndPlanePtr GvrDevice::GetPickingPointAndPlaneInPointCloud(float x, float y)
+{
+  return nullptr;
 }
 
 void GvrDevice::RequestPresent(const base::Callback<void(bool)>& callback) {

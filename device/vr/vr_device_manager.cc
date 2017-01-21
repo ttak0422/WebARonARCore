@@ -13,6 +13,7 @@
 
 #if defined(OS_ANDROID)
 #include "device/vr/android/gvr/gvr_device_provider.h"
+#include "device/vr/android/tango/tango_vr_device_provider.h"
 #endif
 
 namespace device {
@@ -29,6 +30,7 @@ VRDeviceManager::VRDeviceManager()
 // Register VRDeviceProviders for the current platform
 #if defined(OS_ANDROID)
   RegisterProvider(base::MakeUnique<GvrDeviceProvider>());
+  RegisterProvider(base::MakeUnique<TangoVRDeviceProvider>());
 #endif
 }
 

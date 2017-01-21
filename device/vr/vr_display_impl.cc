@@ -43,6 +43,44 @@ void VRDisplayImpl::ResetPose() {
   device_->ResetPose();
 }
 
+void VRDisplayImpl::GetMaxNumberOfPointsInPointCloud(const GetMaxNumberOfPointsInPointCloudCallback& callback) 
+{
+  if (!device_->IsAccessAllowed(this)) {
+    callback.Run(0);
+    return;
+  }
+
+  callback.Run(device_->GetMaxNumberOfPointsInPointCloud());
+}
+
+void VRDisplayImpl::GetPointCloud(bool justUpdatePointCloud, unsigned pointsToSkip, const GetPointCloudCallback& callback) {
+  if (!device_->IsAccessAllowed(this)) {
+    callback.Run(nullptr);
+    return;
+  }
+
+  callback.Run(device_->GetPointCloud(justUpdatePointCloud, pointsToSkip));
+}
+
+void VRDisplayImpl::GetPickingPointAndPlaneInPointCloud(float x, float y, const GetPickingPointAndPlaneInPointCloudCallback& callback)
+{
+  if (!device_->IsAccessAllowed(this)) {
+    callback.Run(nullptr);
+    return;
+  }
+
+  callback.Run(device_->GetPickingPointAndPlaneInPointCloud(x, y));
+}
+
+void VRDisplayImpl::GetSeeThroughCamera(const GetSeeThroughCameraCallback& callback) {
+  if (!device_->IsAccessAllowed(this)) {
+    callback.Run(nullptr);
+    return;
+  }
+
+  callback.Run(device_->GetSeeThroughCamera());
+}
+
 void VRDisplayImpl::RequestPresent(bool secure_origin,
                                    const RequestPresentCallback& callback) {
   if (!device_->IsAccessAllowed(this)) {
