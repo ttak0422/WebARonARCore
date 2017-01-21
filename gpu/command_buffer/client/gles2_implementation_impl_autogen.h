@@ -128,6 +128,14 @@ void GLES2Implementation::BindTexture(GLenum target, GLuint texture) {
   CheckGLError();
 }
 
+void GLES2Implementation::UpdateTextureExternalOes(GLuint texture) {
+  GPU_CLIENT_SINGLE_THREAD_CHECK();
+  GPU_CLIENT_LOG("[" << GetLogPrefix() << "] glUpdateTextureExternalOes("
+                     << texture << ")");
+  helper_->UpdateTextureExternalOes(texture);
+  CheckGLError();
+}
+
 void GLES2Implementation::BindTransformFeedback(GLenum target,
                                                 GLuint transformfeedback) {
   GPU_CLIENT_SINGLE_THREAD_CHECK();

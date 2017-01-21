@@ -29,6 +29,7 @@ virtual void BindFramebuffer(GLenum target, GLuint framebuffer) = 0;
 virtual void BindRenderbuffer(GLenum target, GLuint renderbuffer) = 0;
 virtual void BindSampler(GLuint unit, GLuint sampler) = 0;
 virtual void BindTexture(GLenum target, GLuint texture) = 0;
+virtual void UpdateTextureExternalOes(GLuint texture) = 0;
 virtual void BindTransformFeedback(GLenum target, GLuint transformfeedback) = 0;
 virtual void BlendColor(GLclampf red,
                         GLclampf green,

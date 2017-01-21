@@ -34,6 +34,7 @@ void GLES2InterfaceStub::BindRenderbuffer(GLenum /* target */,
 void GLES2InterfaceStub::BindSampler(GLuint /* unit */, GLuint /* sampler */) {}
 void GLES2InterfaceStub::BindTexture(GLenum /* target */,
                                      GLuint /* texture */) {}
+void GLES2InterfaceStub::UpdateTextureExternalOes(GLuint /* texture */) {}
 void GLES2InterfaceStub::BindTransformFeedback(GLenum /* target */,
                                                GLuint /* transformfeedback */) {
 }

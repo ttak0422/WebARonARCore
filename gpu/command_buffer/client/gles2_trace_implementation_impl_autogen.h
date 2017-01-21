@@ -72,6 +72,11 @@ void GLES2TraceImplementation::BindTexture(GLenum target, GLuint texture) {
   gl_->BindTexture(target, texture);
 }
 
+void GLES2TraceImplementation::UpdateTextureExternalOes(GLuint texture) {
+  TRACE_EVENT_BINARY_EFFICIENT0("gpu", "GLES2Trace::UpdateTextureExternalOes");
+  gl_->UpdateTextureExternalOes(texture);
+}
+
 void GLES2TraceImplementation::BindTransformFeedback(GLenum target,
                                                      GLuint transformfeedback) {
   TRACE_EVENT_BINARY_EFFICIENT0("gpu", "GLES2Trace::BindTransformFeedback");

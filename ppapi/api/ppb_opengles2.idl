@@ -101,6 +101,8 @@ interface PPB_OpenGLES2 {
   void BindTexture([in] PP_Resource context,
                    [in] GLenum target,
                    [in] GLuint texture);
+  void UpdateTextureExternalOes([in] PP_Resource context,
+                                [in] GLuint texture);
   void BlendColor([in] PP_Resource context,
                   [in] GLclampf red,
                   [in] GLclampf green,

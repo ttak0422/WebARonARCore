@@ -28,6 +28,7 @@ void BindFramebuffer(GLenum target, GLuint framebuffer) override;
 void BindRenderbuffer(GLenum target, GLuint renderbuffer) override;
 void BindSampler(GLuint unit, GLuint sampler) override;
 void BindTexture(GLenum target, GLuint texture) override;
+void UpdateTextureExternalOes(GLuint texture) override;
 void BindTransformFeedback(GLenum target, GLuint transformfeedback) override;
 void BlendColor(GLclampf red,
                 GLclampf green,

@@ -142,6 +142,20 @@ error::Error GLES2DecoderPassthroughImpl::HandleBindTexture(
   return error::kNoError;
 }
 
+error::Error GLES2DecoderPassthroughImpl::HandleUpdateTextureExternalOes(
+    uint32_t immediate_data_size,
+    const volatile void* cmd_data) {
+  const volatile gles2::cmds::UpdateTextureExternalOes& c =
+      *static_cast<const volatile gles2::cmds::UpdateTextureExternalOes*>(
+          cmd_data);
+  GLuint texture = c.texture;
+  error::Error error = DoUpdateTextureExternalOes(texture);
+  if (error != error::kNoError) {
+    return error;
+  }
+  return error::kNoError;
+}
+
 error::Error GLES2DecoderPassthroughImpl::HandleBindTransformFeedback(
     uint32_t immediate_data_size,
     const volatile void* cmd_data) {

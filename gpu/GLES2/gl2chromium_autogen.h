@@ -23,6 +23,7 @@
 #define glBindRenderbuffer GLES2_GET_FUN(BindRenderbuffer)
 #define glBindSampler GLES2_GET_FUN(BindSampler)
 #define glBindTexture GLES2_GET_FUN(BindTexture)
+#define glUpdateTextureExternalOes GLES2_GET_FUN(UpdateTextureExternalOes)
 #define glBindTransformFeedback GLES2_GET_FUN(BindTransformFeedback)
 #define glBlendColor GLES2_GET_FUN(BlendColor)
 #define glBlendEquation GLES2_GET_FUN(BlendEquation)

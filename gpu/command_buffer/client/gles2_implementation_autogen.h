@@ -39,6 +39,8 @@ void BindSampler(GLuint unit, GLuint sampler) override;
 
 void BindTexture(GLenum target, GLuint texture) override;
 
+void UpdateTextureExternalOes(GLuint texture) override;
+
 void BindTransformFeedback(GLenum target, GLuint transformfeedback) override;
 
 void BlendColor(GLclampf red,

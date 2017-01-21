@@ -408,6 +408,39 @@ static_assert(offsetof(BindTexture, target) == 4,
 static_assert(offsetof(BindTexture, texture) == 8,
               "offset of BindTexture texture should be 8");
 
+struct UpdateTextureExternalOes {
+  typedef UpdateTextureExternalOes ValueType;
+  static const CommandId kCmdId = kUpdateTextureExternalOes;
+  static const cmd::ArgFlags kArgFlags = cmd::kFixed;
+  static const uint8_t cmd_flags = CMD_FLAG_SET_TRACE_LEVEL(3);
+
+  static uint32_t ComputeSize() {
+    return static_cast<uint32_t>(sizeof(ValueType));  // NOLINT
+  }
+
+  void SetHeader() { header.SetCmd<ValueType>(); }
+
+  void Init(GLuint _texture) {
+    SetHeader();
+    texture = _texture;
+  }
+
+  void* Set(void* cmd, GLuint _texture) {
+    static_cast<ValueType*>(cmd)->Init(_texture);
+    return NextCmdAddress<ValueType>(cmd);
+  }
+
+  gpu::CommandHeader header;
+  uint32_t texture;
+};
+
+static_assert(sizeof(UpdateTextureExternalOes) == 8,
+              "size of UpdateTextureExternalOes should be 8");
+static_assert(offsetof(UpdateTextureExternalOes, header) == 0,
+              "offset of UpdateTextureExternalOes header should be 0");
+static_assert(offsetof(UpdateTextureExternalOes, texture) == 4,
+              "offset of UpdateTextureExternalOes texture should be 4");
+
 struct BindTransformFeedback {
   typedef BindTransformFeedback ValueType;
   static const CommandId kCmdId = kBindTransformFeedback;

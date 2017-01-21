@@ -50,6 +50,9 @@ void GL_APIENTRY GLES2BindSampler(GLuint unit, GLuint sampler) {
 void GL_APIENTRY GLES2BindTexture(GLenum target, GLuint texture) {
   gles2::GetGLContext()->BindTexture(target, texture);
 }
+void GL_APIENTRY GLES2UpdateTextureExternalOes(GLuint texture) {
+  gles2::GetGLContext()->UpdateTextureExternalOes(texture);
+}
 void GL_APIENTRY GLES2BindTransformFeedback(GLenum target,
                                             GLuint transformfeedback) {
   gles2::GetGLContext()->BindTransformFeedback(target, transformfeedback);
@@ -1767,6 +1770,10 @@ extern const NameToFunc g_gles2_function_table[] = {
     },
     {
         "glBindTexture", reinterpret_cast<GLES2FunctionPointer>(glBindTexture),
+    },
+    {
+        "glUpdateTextureExternalOes",
+        reinterpret_cast<GLES2FunctionPointer>(glUpdateTextureExternalOes),
     },
     {
         "glBindTransformFeedback",

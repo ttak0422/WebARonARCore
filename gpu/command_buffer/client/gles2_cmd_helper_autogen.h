@@ -89,6 +89,14 @@ void BindTexture(GLenum target, GLuint texture) {
   }
 }
 
+void UpdateTextureExternalOes(GLuint texture) {
+  gles2::cmds::UpdateTextureExternalOes* c =
+      GetCmdSpace<gles2::cmds::UpdateTextureExternalOes>();
+  if (c) {
+    c->Init(texture);
+  }
+}
+
 void BindTransformFeedback(GLenum target, GLuint transformfeedback) {
   gles2::cmds::BindTransformFeedback* c =
       GetCmdSpace<gles2::cmds::BindTransformFeedback>();

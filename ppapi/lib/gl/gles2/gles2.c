@@ -50,6 +50,11 @@ void GL_APIENTRY glBindTexture(GLenum target, GLuint texture) {
                                      texture);
 }
 
+void GL_APIENTRY glUpdateTextureExternalOes(GLuint texture) {
+  glGetInterfacePPAPI()->UpdateTextureExternalOes(glGetCurrentContextPPAPI(),
+                                                  texture);
+}
+
 void GL_APIENTRY glBlendColor(GLclampf red,
                               GLclampf green,
                               GLclampf blue,

@@ -83,6 +83,13 @@ void BindTexture(PP_Resource context_id, GLenum target, GLuint texture) {
   }
 }
 
+void UpdateTextureExternalOes(PP_Resource context_id, GLuint texture) {
+  Enter3D enter(context_id, true);
+  if (enter.succeeded()) {
+    ToGles2Impl(&enter)->UpdateTextureExternalOes(texture);
+  }
+}
+
 void BlendColor(PP_Resource context_id,
                 GLclampf red,
                 GLclampf green,
@@ -1602,6 +1609,7 @@ const PPB_OpenGLES2* PPB_OpenGLES2_Shared::GetInterface() {
       &BindFramebuffer,
       &BindRenderbuffer,
       &BindTexture,
+      &UpdateTextureExternalOes,
       &BlendColor,
       &BlendEquation,
       &BlendEquationSeparate,
