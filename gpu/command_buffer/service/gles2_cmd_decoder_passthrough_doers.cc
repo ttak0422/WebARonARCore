@@ -304,6 +304,12 @@ error::Error GLES2DecoderPassthroughImpl::DoBindTexture(GLenum target,
   return error::kNoError;
 }
 
+// WebAR BEGIN
+error::Error GLES2DecoderPassthroughImpl::DoUpdateTextureExternalOes(GLuint texture) {
+  return error::kNoError;
+}
+// WebAR END
+
 error::Error GLES2DecoderPassthroughImpl::DoBindTransformFeedback(
     GLenum target,
     GLuint transformfeedback) {

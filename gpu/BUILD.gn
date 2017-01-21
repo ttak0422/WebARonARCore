@@ -22,6 +22,18 @@ component("gpu") {
     "//gpu/ipc/common:ipc_common_sources",
     "//gpu/ipc/service:ipc_service_sources",
   ]
+
+  # WebAR BEGIN
+  ldflags = [
+    "-L../../third_party/tango/libtango_chromium/armeabi-v7a",
+    "-ltango_chromium",
+    "-L../../third_party/tango/libtango_client_api/armeabi-v7a",
+    "-ltango_client_api",
+    "-L../../third_party/tango/libtango_support_api/armeabi-v7a",
+    "-ltango_support_api"
+  ]
+  # WebAR END
+
 }
 
 shared_library("command_buffer_gles2") {

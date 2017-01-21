@@ -18,6 +18,11 @@ error::Error DoBindFramebuffer(GLenum target, GLuint framebuffer);
 error::Error DoBindRenderbuffer(GLenum target, GLuint renderbuffer);
 error::Error DoBindSampler(GLuint unit, GLuint sampler);
 error::Error DoBindTexture(GLenum target, GLuint texture);
+
+// WebAR BEGIN
+error::Error DoUpdateTextureExternalOes(GLuint texture);
+// WebAR END
+
 error::Error DoBindTransformFeedback(GLenum target, GLuint transformfeedback);
 error::Error DoBlendColor(GLclampf red,
                           GLclampf green,

@@ -2460,6 +2460,28 @@ _FUNCTION_INFO = {
     'unit_test': False,
     'trace_level': 2,
   },
+
+
+#WebAR BEGIN
+  'UpdateTextureExternalOes': {
+    'decoder_func': 'DoUpdateTextureExternalOes',
+#    'extension': 'CHROMIUM_screen_space_antialiasing',
+#    'extension_flag': 'chromium_screen_space_antialiasing',
+    'unit_test': False,
+    'client_test': False,
+  },
+#  'UpdateTextureExternalOes': {
+#    'type': 'Bind',
+#    'decoder_func': 'DoUpdateTextureExternalOes',
+#    'gen_func': 'GenTextures',
+    # TODO: remove this once client side caching works.
+#    'client_test': False,
+#    'unit_test': False,
+#    'trace_level': 2,
+#  },
+#WebAR END
+
+
   'BindTransformFeedback': {
     'type': 'Bind',
     'decoder_func': 'DoBindTransformFeedback',

@@ -14,6 +14,11 @@ GL_APICALL void         GL_APIENTRY glBindFramebuffer (GLenumFramebufferTarget t
 GL_APICALL void         GL_APIENTRY glBindRenderbuffer (GLenumRenderBufferTarget target, GLidBindRenderbuffer renderbuffer);
 GL_APICALL void         GL_APIENTRY glBindSampler (GLuint unit, GLidBindSampler sampler);
 GL_APICALL void         GL_APIENTRY glBindTexture (GLenumTextureBindTarget target, GLidBindTexture texture);
+
+// WebAR BEGIN
+GL_APICALL void         GL_APIENTRY glUpdateTextureExternalOes (GLidBindTexture texture);
+// WebAR END
+
 GL_APICALL void         GL_APIENTRY glBindTransformFeedback (GLenumTransformFeedbackBindTarget target, GLidBindTransformFeedback transformfeedback);
 GL_APICALL void         GL_APIENTRY glBlendColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 GL_APICALL void         GL_APIENTRY glBlendEquation ( GLenumEquation mode );
