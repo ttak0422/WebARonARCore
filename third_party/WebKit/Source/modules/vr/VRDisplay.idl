@@ -30,6 +30,10 @@ enum VREye {
     boolean getFrameData(VRFrameData frameData);
     [DeprecateAs=VRDeprecatedGetPose] VRPose getPose();
     void resetPose();
+    long getMaxNumberOfPointsInPointCloud();
+    VRPointCloud getPointCloud(boolean justUpdatePointCloud, unsigned long pointsToSkip);
+    VRPickingPointAndPlane getPickingPointAndPlaneInPointCloud(float x, float y);
+    VRSeeThroughCamera getSeeThroughCamera();
 
     attribute double depthNear;
     attribute double depthFar;

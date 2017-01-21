@@ -8,6 +8,7 @@
 #include "core/dom/Document.h"
 #include "core/dom/FrameRequestCallback.h"
 #include "core/events/EventTarget.h"
+#include "core/dom/DOMTypedArray.h"
 #include "device/vr/vr_service.mojom-blink.h"
 #include "modules/vr/VRDisplayCapabilities.h"
 #include "modules/vr/VRLayer.h"
@@ -33,6 +34,9 @@ class VREyeParameters;
 class VRFrameData;
 class VRStageParameters;
 class VRPose;
+class VRPointCloud;
+class VRPickingPointAndPlane;
+class VRSeeThroughCamera;
 
 class WebGLRenderingContextBase;
 
@@ -61,6 +65,11 @@ class VRDisplay final : public EventTargetWithInlineData,
   bool getFrameData(VRFrameData*);
   VRPose* getPose();
   void resetPose();
+
+  unsigned getMaxNumberOfPointsInPointCloud();
+  VRPointCloud* getPointCloud(bool justUpdatePointCloud, unsigned pointsToSkip);
+  VRPickingPointAndPlane* getPickingPointAndPlaneInPointCloud(float x, float y);
+  VRSeeThroughCamera* getSeeThroughCamera();
 
   double depthNear() const { return m_depthNear; }
   double depthFar() const { return m_depthFar; }
@@ -145,6 +154,12 @@ class VRDisplay final : public EventTargetWithInlineData,
   Member<VREyeParameters> m_eyeParametersLeft;
   Member<VREyeParameters> m_eyeParametersRight;
   device::mojom::blink::VRPosePtr m_framePose;
+
+  Member<VRPointCloud> m_pointCloud;
+  Member<VRPickingPointAndPlane> m_pickingPointAndPlane;
+  Member<VRSeeThroughCamera> m_seeThroughCamera;
+  Member<DOMFloat32Array> m_poseMatrix;
+  
   VRLayer m_layer;
   double m_depthNear;
   double m_depthFar;
