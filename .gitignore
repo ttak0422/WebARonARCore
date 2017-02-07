@@ -30,6 +30,7 @@
 *_proto_cpp.xml
 *~
 !Android.mk
+!Application.mk
 .*.sw?
 .DS_Store
 .classpath
