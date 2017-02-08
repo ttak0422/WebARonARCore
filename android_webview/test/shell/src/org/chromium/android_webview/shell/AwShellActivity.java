@@ -172,10 +172,10 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
 
     private void requestCameraPermission() 
     {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) 
         {
             // Should we show an explanation?
-            // if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)) 
+            // if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) 
             // {
 
             //     // Show an expanation to the user *asynchronously* -- don't block
