@@ -381,7 +381,7 @@ void TangoHandler::onTangoServiceConnected(JNIEnv* env, jobject binder)
 		std::exit (EXIT_SUCCESS);
 	}
 
-	connect("dce39144-304d-41b1-af08-1a762675524c");
+	connect("");
 }
 
 void TangoHandler::connect(const std::string& uuid)
@@ -597,16 +597,25 @@ bool TangoHandler::getPose(TangoPoseData* tangoPoseData)
 
 
 		result = TangoSupport_getPoseAtTime(
-			timestamp, TANGO_COORDINATE_FRAME,
-			// timestamp, TANGO_COORDINATE_FRAME_AREA_DESCRIPTION,
+			timestamp, TANGO_COORDINATE_FRAME_AREA_DESCRIPTION,
 			TANGO_COORDINATE_FRAME_CAMERA_COLOR, TANGO_SUPPORT_ENGINE_OPENGL,
 			ROTATION_0, tangoPoseData) == TANGO_SUCCESS;
 		if (!result) 
 		{
 			LOGE("TangoHandler::getPose: Failed to get the pose.");
 		}
-
-		LOGI("tangoPoseData.frame.base = %d, tangoPoseData.frame.target = %d", tangoPoseData->frame.base, tangoPoseData->frame.target);
+		else if (tangoPoseData->status_code != TANGO_POSE_VALID)
+		{
+			LOGE("TangoHandler::getPose: Getting the Area Description pose did not work. Falling back to device pose estimation.");
+			result = TangoSupport_getPoseAtTime(
+				timestamp, TANGO_COORDINATE_FRAME,
+				TANGO_COORDINATE_FRAME_CAMERA_COLOR, TANGO_SUPPORT_ENGINE_OPENGL,
+				ROTATION_0, tangoPoseData) == TANGO_SUCCESS;
+			if (!result) 
+			{
+				LOGE("TangoHandler::getPose: Failed to get the pose.");
+			}
+		}
 
 #ifdef TANGO_GET_POSE_ALONG_WITH_TEXTURE_UPDATE
 		}
@@ -1039,8 +1048,6 @@ bool TangoHandler::getADFs(std::vector<ADF>& adfs) const
     LOGE("TangoHandler::getADFs failed to get the area description with error code: %d", ret);
     return false;
   }
-
-  LOGI("uuids = %s", uuids);
 
 	adfs.clear();
   std::string uuid;
