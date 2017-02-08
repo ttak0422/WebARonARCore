@@ -83,6 +83,7 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
     private static final String INITIAL_URL = "about:blank";
     private static final String LAST_USED_URL_PREFERENCE_NAME = "url";
     private static final int CAMERA_PERMISSION_ID = 1;
+    private static final int ADF_PERMISSION_ID = 2;
     private static final int CAMERA_ID = 0;
     private Point mScreenSize = new Point();
     private AwBrowserContext mBrowserContext;
@@ -198,11 +199,20 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
         }
     }    
 
+    private void requestADFPermission()
+    {
+        final String EXTRA_KEY_PERMISSIONTYPE = "PERMISSIONTYPE";
+        final String EXTRA_VALUE_ADF = "ADF_LOAD_SAVE_PERMISSION";
+
+        Intent intent = new Intent();
+        intent.setAction("android.intent.action.REQUEST_TANGO_PERMISSION");
+        intent.putExtra(EXTRA_KEY_PERMISSIONTYPE, EXTRA_VALUE_ADF);
+        startActivityForResult(intent, ADF_PERMISSION_ID);
+    }
+
    @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-
         if (requestCode == CAMERA_PERMISSION_ID) {
-
             // Received permission result for camera permission.est.");
             // Check if the only required permission has been granted
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -216,6 +226,7 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
         super.onCreate(savedInstanceState);
 
         requestCameraPermission();
+        requestADFPermission();
 
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         Display display = windowManager.getDefaultDisplay();
@@ -622,5 +633,13 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
             android.os.Debug.waitForDebugger();
             Log.e(TAG, "Java debugger connected. Resuming execution.");
         }
+    }
+
+    private void disconnect() {
+
+    }
+
+    private void connect(String uuid) {
+
     }
 }
