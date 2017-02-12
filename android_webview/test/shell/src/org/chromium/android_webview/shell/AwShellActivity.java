@@ -634,12 +634,4 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
             Log.e(TAG, "Java debugger connected. Resuming execution.");
         }
     }
-
-    private void disconnect() {
-
-    }
-
-    private void connect(String uuid) {
-
-    }
 }
