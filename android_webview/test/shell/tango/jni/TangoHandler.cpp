@@ -371,7 +371,7 @@ void TangoHandler::onCreate(JNIEnv* env, jobject activity, int activityOrientati
 
 	this->activityOrientation = activityOrientation;
 	this->sensorOrientation = sensorOrientation;
-	combinedOrientation = static_cast<TangoSupportDisplayRotation>(combineOrientations(activityOrientation, sensorOrientation));
+	combinedOrientation = static_cast<TangoSupportRotation>(combineOrientations(activityOrientation, sensorOrientation));
 }
 
 void TangoHandler::onTangoServiceConnected(JNIEnv* env, jobject binder) 
@@ -558,7 +558,7 @@ void TangoHandler::onDeviceRotationChanged(int activityOrientation, int sensorOr
 {
 	this->activityOrientation = activityOrientation;
 	this->sensorOrientation = sensorOrientation;
-	combinedOrientation = static_cast<TangoSupportDisplayRotation>(combineOrientations(activityOrientation, sensorOrientation));
+	combinedOrientation = static_cast<TangoSupportRotation>(combineOrientations(activityOrientation, sensorOrientation));
 }
 
 bool TangoHandler::isConnected() const
@@ -596,21 +596,28 @@ bool TangoHandler::getPose(TangoPoseData* tangoPoseData)
 //         TANGO_COORDINATE_FRAME_DEVICE}
 
 
-		result = TangoSupport_getPoseAtTime(
-			timestamp, TANGO_COORDINATE_FRAME_AREA_DESCRIPTION,
-			TANGO_COORDINATE_FRAME_CAMERA_COLOR, TANGO_SUPPORT_ENGINE_OPENGL,
-			ROTATION_0, tangoPoseData) == TANGO_SUCCESS;
-		if (!result) 
+		if (lastEnabledADFUUID != "")
 		{
-			LOGE("TangoHandler::getPose: Failed to get the pose.");
+			result = TangoSupport_getPoseAtTime(
+				timestamp, TANGO_COORDINATE_FRAME_AREA_DESCRIPTION,
+				TANGO_COORDINATE_FRAME_CAMERA_COLOR, TANGO_SUPPORT_ENGINE_OPENGL,
+				static_cast<TangoSupportRotation>(activityOrientation), tangoPoseData) == TANGO_SUCCESS;
+			if (!result) 
+			{
+				LOGE("TangoHandler::getPose: Failed to get the pose for area description.");
+			}
+			else if (tangoPoseData->status_code != TANGO_POSE_VALID) 
+			{
+				LOGE("TangoHandler::getPose: Getting the Area Description pose did not work. Falling back to device pose estimation.");
+			}
 		}
-		else if (tangoPoseData->status_code != TANGO_POSE_VALID)
+
+		if (lastEnabledADFUUID == "" || tangoPoseData->status_code != TANGO_POSE_VALID)
 		{
-			LOGE("TangoHandler::getPose: Getting the Area Description pose did not work. Falling back to device pose estimation.");
 			result = TangoSupport_getPoseAtTime(
 				timestamp, TANGO_COORDINATE_FRAME,
 				TANGO_COORDINATE_FRAME_CAMERA_COLOR, TANGO_SUPPORT_ENGINE_OPENGL,
-				ROTATION_0, tangoPoseData) == TANGO_SUCCESS;
+				static_cast<TangoSupportRotation>(activityOrientation), tangoPoseData) == TANGO_SUCCESS;
 			if (!result) 
 			{
 				LOGE("TangoHandler::getPose: Failed to get the pose.");
@@ -636,7 +643,7 @@ bool TangoHandler::getPoseMatrix(float* matrix)
 	TangoSupport_getMatrixTransformAtTime(
 		timestamp, TANGO_COORDINATE_FRAME,
 		TANGO_COORDINATE_FRAME_CAMERA_COLOR, TANGO_SUPPORT_ENGINE_OPENGL,
-		TANGO_SUPPORT_ENGINE_OPENGL, ROTATION_0, &tangoMatrixTransformData);
+		TANGO_SUPPORT_ENGINE_OPENGL, static_cast<TangoSupportRotation>(activityOrientation), &tangoMatrixTransformData);
 	if (tangoMatrixTransformData.status_code != TANGO_POSE_VALID) {
 		LOGE("TangoHandler::getPoseMatrix: Could not find a valid matrix transform at time %lf for the color camera.", timestamp);
 		return result;
@@ -676,7 +683,7 @@ bool TangoHandler::getPointCloud(uint32_t* numberOfPoints, float* points, bool j
 			TangoSupport_getMatrixTransformAtTime(
 				latestTangoPointCloud->timestamp, TANGO_COORDINATE_FRAME,
 				TANGO_COORDINATE_FRAME_CAMERA_DEPTH, TANGO_SUPPORT_ENGINE_OPENGL,
-				TANGO_SUPPORT_ENGINE_TANGO, ROTATION_0, &depthCameraMatrixTransform);
+				TANGO_SUPPORT_ENGINE_TANGO, static_cast<TangoSupportRotation>(activityOrientation), &depthCameraMatrixTransform);
 			if (depthCameraMatrixTransform.status_code == TANGO_POSE_VALID) 
 			{
 				TangoPointCloud tangoPointCloud;
@@ -736,9 +743,14 @@ bool TangoHandler::getPickingPointAndPlaneInPointCloud(float x, float y, double*
 		return result;
 	}
 	float uv[] = {x, y};
+  double identity_translation[3] = {0.0, 0.0, 0.0};
+  double identity_orientation[4] = {0.0, 0.0, 0.0, 1.0};
 	if (TangoSupport_fitPlaneModelNearPoint(
-		latestTangoPointCloud, &tangoPose,
-		uv, point, plane) != TANGO_SUCCESS) 
+				latestTangoPointCloud, identity_translation, identity_orientation,
+				uv, static_cast<TangoSupportRotation>(activityOrientation),
+				tangoPose.translation,
+				tangoPose.orientation,
+				point, plane) != TANGO_SUCCESS)
 	{
 		LOGE("%s: could not calculate picking point and plane", __func__);
 		return result;
@@ -747,7 +759,7 @@ bool TangoHandler::getPickingPointAndPlaneInPointCloud(float x, float y, double*
 	TangoSupport_getMatrixTransformAtTime(
 		latestTangoPointCloud->timestamp, TANGO_COORDINATE_FRAME,
 		TANGO_COORDINATE_FRAME_CAMERA_DEPTH, TANGO_SUPPORT_ENGINE_OPENGL,
-		TANGO_SUPPORT_ENGINE_TANGO, ROTATION_0, &tangoDepthCameraTranformMatrix);
+		TANGO_SUPPORT_ENGINE_TANGO, static_cast<TangoSupportRotation>(activityOrientation), &tangoDepthCameraTranformMatrix);
 	if (tangoDepthCameraTranformMatrix.status_code != TANGO_POSE_VALID) {
 		LOGE("TangoHandler::getPickingPointAndPlaneInPointCloud: Could not find a valid matrix transform at "
 		"time %lf for the depth camera.", latestTangoPointCloud->timestamp);
@@ -957,7 +969,7 @@ bool TangoHandler::updateCameraImageIntoTexture(uint32_t textureId)
 		result = TangoSupport_getPoseAtTime(
 			lastTangoImageBufferTimestamp, TANGO_COORDINATE_FRAME,
 			TANGO_COORDINATE_FRAME_CAMERA_COLOR, TANGO_SUPPORT_ENGINE_OPENGL,
-			ROTATION_0, &pose);
+			static_cast<TangoSupportRotation>(activityOrientation), &pose);
 		if (result != TANGO_SUCCESS) 
 		{
 			LOGE("TangoHandler::getPose: Failed to get a the pose.");
