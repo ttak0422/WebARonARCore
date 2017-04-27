@@ -166,7 +166,6 @@ private:
 
 	int activityOrientation;
 	int sensorOrientation;
-	TangoSupportRotation combinedOrientation;
 
 	std::string lastEnabledADFUUID;
 };

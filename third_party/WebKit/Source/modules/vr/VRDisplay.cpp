@@ -263,7 +263,12 @@ VRSeeThroughCamera* VRDisplay::getSeeThroughCamera()
 
   device::mojom::blink::VRSeeThroughCameraPtr seeThroughCamera;
   m_display->GetSeeThroughCamera(&seeThroughCamera);
-  m_seeThroughCamera->setSeeThroughCamera(seeThroughCamera);
+  if (seeThroughCamera.is_null()) {
+    return nullptr;
+  }
+  else {
+    m_seeThroughCamera->setSeeThroughCamera(seeThroughCamera);
+  }
   return m_seeThroughCamera;
 }
 
