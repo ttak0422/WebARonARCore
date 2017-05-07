@@ -46,7 +46,7 @@ struct VREyeParameters {
 
 struct VRPointCloud {
   uint32 numberOfPoints;
-  array<float>? points;
+  array<float> points;
 };
 
 struct VRPickingPointAndPlane {
