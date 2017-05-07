@@ -4939,7 +4939,7 @@ void WebGLRenderingContextBase::texImageHelperVRSeeThroughCamera(
   if (m_cameraImageTextureId != 0) 
   {
     contextGL()->UpdateTextureExternalOes(m_cameraImageTextureId);
-    contextGL()->Finish();
+    // contextGL()->Finish();
   }
 
 #endif

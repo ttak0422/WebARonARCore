@@ -29,6 +29,7 @@
 
 #include <string>
 #include <vector>
+#include <queue>
 
 #define LOG_TAG "Tango Chromium"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
@@ -41,7 +42,6 @@
 #define TANGO_USE_CAMERA
 #define TANGO_USE_POWER_OF_TWO
 // #define TANGO_USE_DRIFT_CORRECTION
-// #define TANGO_GET_POSE_ALONG_WITH_TEXTURE_UPDATE
 #define TANGO_USE_AREA_DESCRIPTION
 
 #ifdef TANGO_USE_DRIFT_CORRECTION
@@ -49,6 +49,8 @@
 #else
 #define TANGO_COORDINATE_FRAME TANGO_COORDINATE_FRAME_START_OF_SERVICE
 #endif
+
+#define MAX_NUMBER_OF_TANGO_BUFFER_IDS 1
 
 namespace tango_chromium {
 
@@ -101,7 +103,7 @@ public:
 	bool getPose(TangoPoseData* tangoPoseData);
 	bool getPoseMatrix(float* matrix);
 
-	uint32_t getMaxNumberOfPointsInPointCloud() const;
+	unsigned getMaxNumberOfPointsInPointCloud() const;
 	bool getPointCloud(uint32_t* numberOfPoints, float* points, bool justUpdatePointCloud, unsigned pointsToSkip);
 	bool getPickingPointAndPlaneInPointCloud(float x, float y, double* point, double* plane);
 
@@ -137,13 +139,7 @@ private:
 	double lastTangoImageBufferTimestamp;
 	std::time_t lastTangoImagebufferTimestampTime;
 
-#ifdef TANGO_GET_POSE_ALONG_WITH_TEXTURE_UPDATE
-	pthread_mutex_t poseMutex;
-	TangoPoseData pose;
-	bool poseIsCorrect;
-#endif
-
-	uint32_t maxNumberOfPointsInPointCloud;
+	unsigned maxNumberOfPointsInPointCloud;
 	TangoSupportPointCloudManager* pointCloudManager;
 	TangoPointCloud* latestTangoPointCloud;
 	bool latestTangoPointCloudRetrieved;
@@ -168,6 +164,9 @@ private:
 	int sensorOrientation;
 
 	std::string lastEnabledADFUUID;
+
+	pthread_mutex_t tangoBufferIdsMutex;
+	std::queue<TangoBufferId> tangoBufferIds;
 };
 }  // namespace tango_4_chromium
 
