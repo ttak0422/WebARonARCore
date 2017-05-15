@@ -713,8 +713,10 @@ bool TangoHandler::getPickingPointAndPlaneInPointCloud(float x, float y, double*
 
     TangoPoseData tangoPose;
     if (TangoSupport_calculateRelativePose(
-      timestamp, TANGO_COORDINATE_FRAME_CAMERA_COLOR,
-      latestTangoPointCloud->timestamp, TANGO_COORDINATE_FRAME_CAMERA_DEPTH,
+      latestTangoPointCloud->timestamp, 
+      TANGO_COORDINATE_FRAME_CAMERA_DEPTH,
+      timestamp,
+      TANGO_COORDINATE_FRAME_CAMERA_COLOR,
       &tangoPose) != TANGO_SUCCESS) 
     {
       LOGE("%s: could not calculate relative pose", __func__);
