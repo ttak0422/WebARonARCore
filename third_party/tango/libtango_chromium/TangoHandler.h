@@ -36,13 +36,11 @@
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 // Some preprocessor symbols that allow to control some of the TangoHandler features/capabilities.
-// #define TANGO_USE_YUV_CAMERA
 #define TANGO_USE_POINT_CLOUD
 #define TANGO_USE_POINT_CLOUD_CALLBACK
 #define TANGO_USE_CAMERA
-#define TANGO_USE_POWER_OF_TWO
 // #define TANGO_USE_DRIFT_CORRECTION
-#define TANGO_USE_AREA_DESCRIPTION
+// #define TANGO_USE_AREA_DESCRIPTION
 
 #ifdef TANGO_USE_DRIFT_CORRECTION
 #define TANGO_COORDINATE_FRAME TANGO_COORDINATE_FRAME_AREA_DESCRIPTION
@@ -111,7 +109,6 @@ public:
 	bool getCameraImageTextureSize(uint32_t* width, uint32_t* height);
 	bool getCameraFocalLength(double* focalLengthX, double* focalLengthY);
 	bool getCameraPoint(double* x, double* y);
-	bool getCameraImageRGB(uint8_t* image);
 	bool updateCameraImageIntoTexture(uint32_t textureId);
 
 #ifdef TANGO_USE_POINT_CLOUD_CALLBACK
@@ -144,19 +141,10 @@ private:
 	TangoPointCloud* latestTangoPointCloud;
 	bool latestTangoPointCloudRetrieved;
 
-	pthread_mutex_t cameraImageMutex;
-	pthread_cond_t cameraImageCondition;
-	uint8_t* cameraImageYUV;
-	uint8_t* cameraImageYUVTemp;
-	uint32_t cameraImageYUVSize;
-	uint32_t cameraImageYUVOffset;
-	uint8_t* cameraImageRGB;
-	uint32_t cameraImageRGBSize;
 	uint32_t cameraImageWidth;
 	uint32_t cameraImageHeight;
 	uint32_t cameraImageTextureWidth;
 	uint32_t cameraImageTextureHeight;
-	bool cameraImageYUVHasChanged;
 
 	bool textureIdConnected;
 

@@ -182,7 +182,7 @@ void AwAutofillClient::DidFillOrPreviewField(
     const base::string16& profile_full_name) {}
 
 void AwAutofillClient::OnFirstUserGestureObserved() {
-  NOTIMPLEMENTED();
+  // NOTIMPLEMENTED();
 }
 
 bool AwAutofillClient::IsContextSecure(const GURL& form_origin) {

@@ -46,23 +46,6 @@ void onTextureAvailable(void* context, TangoCameraId tangoCameraId)
 {
 }
 
-// We could do this conversion in a fragment shader if all we care about is
-// rendering, but we show it here as an example of how people can use RGB data
-// on the CPU.
-inline void yuv2Rgb(uint8_t yValue, uint8_t uValue, uint8_t vValue, uint8_t* r,
-                    uint8_t* g, uint8_t* b) {
-  *r = yValue + (1.370705 * (vValue - 128));
-  *g = yValue - (0.698001 * (vValue - 128)) - (0.337633 * (uValue - 128));
-  *b = yValue + (1.732446 * (uValue - 128));
-}
-
-inline size_t closestPowerOfTwo(size_t value)
-{
-  size_t powerOfTwo = 2;
-  while(value > powerOfTwo) powerOfTwo *= 2;
-  return powerOfTwo;
-}
-
 inline void multiplyMatrixWithVector(const float* m, const double* v, double* vr, bool addTranslation = true) {
   double v0 = v[0];
   double v1 = v[1];
@@ -184,23 +167,6 @@ inline void transformPlane(const double* p, const float* m, double* pr)
   pr[0] = normal[0];
   pr[1] = normal[1];
   pr[2] = normal[2];
-
-  // if (!out_plane) {
-  //   LOGE("PlaneFitting: Invalid input to plane transform");
-  //   return;
-  // }
-
-  // const glm::vec4 input_normal(glm::vec3(in_plane), 0.0f);
-  // const glm::vec4 input_origin(
-  //     -static_cast<float>(in_plane[3]) * glm::vec3(input_normal), 1.0f);
-
-  // const glm::vec4 out_origin = out_T_in * input_origin;
-  // const glm::vec4 out_normal =
-  //     glm::transpose(glm::inverse(out_T_in)) * input_normal;
-
-  // *out_plane =
-  //     glm::vec4(glm::vec3(out_normal),
-  //               -glm::dot(glm::vec3(out_origin), glm::vec3(out_normal)));
 }
 
 bool getADFMetadataValue(const std::string& uuid, const std::string& key, std::string& value) 
@@ -293,39 +259,30 @@ TangoHandler::TangoHandler(): connected(false)
   , latestTangoPointCloudRetrieved(false)
   , maxNumberOfPointsInPointCloud(0)
   , pointCloudManager(0)
-  , cameraImageYUV(0)
-  , cameraImageYUVSize(0)
-  , cameraImageYUVTemp(0)
-  , cameraImageYUVOffset(0)
-  , cameraImageRGB(0)
-  , cameraImageRGBSize(0)
   , cameraImageWidth(0)
   , cameraImageHeight(0)
   , cameraImageTextureWidth(0)
   , cameraImageTextureHeight(0)
-  , cameraImageYUVHasChanged(false)
   , textureIdConnected(false)
 {
     pthread_mutexattr_t attr;
     pthread_mutexattr_init( &attr );
     pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_ERRORCHECK );
-    pthread_mutex_init( &cameraImageMutex, &attr );
     pthread_mutex_init( &tangoBufferIdsMutex, &attr );
-    pthread_cond_init( &cameraImageCondition, NULL );
     pthread_mutexattr_destroy( &attr ); 
 }
 
 TangoHandler::~TangoHandler() 
 {
-    pthread_mutex_destroy( &cameraImageMutex );
     pthread_mutex_destroy( &tangoBufferIdsMutex );
-    pthread_cond_destroy( &cameraImageCondition );
 
 #ifdef TANGO_USE_POINT_CLOUD
+
     if (pointCloudManager != 0)
     {
       TangoSupport_freePointCloudManager(pointCloudManager);
     }
+
 #endif
 
   TangoConfig_free(tangoConfig);
@@ -402,6 +359,7 @@ void TangoHandler::connect(const std::string& uuid)
   }
 
 #ifdef TANGO_USE_DRIFT_CORRECTION
+
   // Drift correction allows motion tracking to recover after it loses tracking.
   // The drift corrected pose is is available through the frame pair with
   // base frame AREA_DESCRIPTION and target frame DEVICE.
@@ -411,9 +369,11 @@ void TangoHandler::connect(const std::string& uuid)
       "failed with error code: %d", result);
     std::exit(EXIT_SUCCESS);
   }
+
 #endif  
 
 #ifdef TANGO_USE_POINT_CLOUD
+
   if (pointCloudManager == 0)
   {
     int maxPointCloudVertexCount_temp = 0;
@@ -433,11 +393,13 @@ void TangoHandler::connect(const std::string& uuid)
     }
 
   #ifdef TANGO_USE_POINT_CLOUD_CALLBACK
+
     result = TangoService_connectOnPointCloudAvailable(::onPointCloudAvailable);
     if (result != TANGO_SUCCESS) {
       LOGE("TangoHandler::onTangoServiceConnected, Failed to connect to point cloud callback with error code: %d", result);
       std::exit(EXIT_SUCCESS);
     }
+
   #endif
 
   }
@@ -445,6 +407,7 @@ void TangoHandler::connect(const std::string& uuid)
 #endif
 
 #ifdef TANGO_USE_CAMERA 
+
   // Enable color camera from config.
   result = TangoConfig_setBool(tangoConfig, "config_enable_color_camera", true);
   if (result != TANGO_SUCCESS) {
@@ -459,11 +422,6 @@ void TangoHandler::connect(const std::string& uuid)
     std::exit(EXIT_SUCCESS);
   }
 
-  // result = TangoService_connectOnFrameAvailable(TANGO_CAMERA_COLOR, this, ::onCameraFrameAvailable);
-  // if (result != TANGO_SUCCESS) {
-  //  LOGE("TangoHandler::onTangoServiceConnected, Error connecting color frame %d", result);
-  //  std::exit(EXIT_SUCCESS);
-  // }
 #endif
 
   // If there is a uuid, then activate it
@@ -508,22 +466,10 @@ void TangoHandler::disconnect()
 {
   TangoService_disconnect();
 
-  pthread_mutex_lock( &cameraImageMutex );
-
-  cameraImageYUVSize = cameraImageYUVOffset = 0;
-  cameraImageYUVHasChanged = false;
-  delete [] cameraImageYUVTemp;
-  cameraImageYUVTemp = 0;
-  delete [] cameraImageYUV;
-  cameraImageYUV = 0;
-
-  cameraImageRGBSize = cameraImageWidth = cameraImageHeight = cameraImageTextureWidth = cameraImageTextureHeight = 0;
-  delete [] cameraImageRGB;
-  cameraImageRGB = 0;
+  cameraImageWidth = cameraImageHeight = 
+    cameraImageTextureWidth = cameraImageTextureHeight = 0;
 
   textureIdConnected = false;
-
-  pthread_mutex_unlock( &cameraImageMutex );
 
   connected = false;
 }
@@ -567,7 +513,6 @@ bool TangoHandler::getPose(TangoPoseData* tangoPoseData)
         pthread_mutex_lock( &tangoBufferIdsMutex );
         tangoBufferIds.push(tangoBufferId);
         pthread_mutex_unlock( &tangoBufferIdsMutex );
-        // LOGI("TangoHandler::getPose: TangoBufferId stored. Number of TangoBufferIds stored so far = %d", tangoBufferIds.size());
       }
 
       double timestamp = hasLastTangoImageBufferTimestampChangedLately() ? lastTangoImageBufferTimestamp : 0;
@@ -726,11 +671,11 @@ bool TangoHandler::getPickingPointAndPlaneInPointCloud(float x, float y, double*
     double identity_translation[3] = {0.0, 0.0, 0.0};
     double identity_orientation[4] = {0.0, 0.0, 0.0, 1.0};
     if (TangoSupport_fitPlaneModelNearPoint(
-          latestTangoPointCloud, identity_translation, identity_orientation,
-          uv, static_cast<TangoSupportRotation>(activityOrientation),
-          tangoPose.translation,
-          tangoPose.orientation,
-          point, plane) != TANGO_SUCCESS)
+      latestTangoPointCloud, identity_translation, identity_orientation,
+      uv, static_cast<TangoSupportRotation>(activityOrientation),
+      tangoPose.translation,
+      tangoPose.orientation,
+      point, plane) != TANGO_SUCCESS)
     {
       LOGE("%s: could not calculate picking point and plane", __func__);
       return result;
@@ -761,28 +706,8 @@ bool TangoHandler::getCameraImageSize(uint32_t* width, uint32_t* height)
 {
   bool result = true;
 
-#ifdef TANGO_USE_YUV_CAMERA 
-
-  pthread_mutex_lock( &cameraImageMutex );
-
-  result = cameraImageYUVTemp != 0;
-
-  if (!result)
-  {
-        pthread_cond_wait( &cameraImageCondition, &cameraImageMutex );    
-  }
-
-  *width = cameraImageWidth;
-  *height = cameraImageHeight;
-
-  pthread_mutex_unlock( &cameraImageMutex );
-
-#else
-
   *width = cameraImageWidth;
   *height = cameraImageHeight;    
-
-#endif
 
   return result;
 }
@@ -791,28 +716,8 @@ bool TangoHandler::getCameraImageTextureSize(uint32_t* width, uint32_t* height)
 {
   bool result = true;
 
-#ifdef TANGO_USE_YUV_CAMERA 
-
-  pthread_mutex_lock( &cameraImageMutex );
-
-  result = cameraImageYUVTemp != 0;
-
-  if (!result)
-  {
-        pthread_cond_wait( &cameraImageCondition, &cameraImageMutex );    
-  }
-
   *width = cameraImageTextureWidth;
   *height = cameraImageTextureHeight;
-
-  pthread_mutex_unlock( &cameraImageMutex );
-
-#else
-
-  *width = cameraImageTextureWidth;
-  *height = cameraImageTextureHeight;
-
-#endif  
 
   return result;
 }
@@ -833,93 +738,6 @@ bool TangoHandler::getCameraPoint(double* x, double* y)
   return result;
 }
 
-bool TangoHandler::getCameraImageRGB(uint8_t* image)
-{
-  bool result = false;
-
-#ifndef TANGO_USE_YUV_CAMERA
-  return result;  
-#endif
-
-  pthread_mutex_lock( &cameraImageMutex );
-
-  result = cameraImageYUVTemp != 0;
-
-  if (!result)
-  {
-        pthread_cond_wait( &cameraImageCondition, &cameraImageMutex );    
-  }
-
-  pthread_mutex_unlock( &cameraImageMutex );
-
-  if (cameraImageYUVHasChanged)
-  {
-    pthread_mutex_lock( &cameraImageMutex );
-
-    memcpy(cameraImageYUV, cameraImageYUVTemp, cameraImageYUVSize);
-
-    pthread_mutex_unlock( &cameraImageMutex );
-
-    for (size_t i = 0; i < cameraImageHeight; ++i) {
-      for (size_t j = 0; j < cameraImageWidth; ++j) {
-        size_t x_index = j;
-        if (j % 2 != 0) {
-          x_index = j - 1;
-        }
-
-        size_t rgb_index = (i * cameraImageTextureWidth + j) * 3;
-
-        // The YUV texture format is NV21,
-        // yuv_buffer_ buffer layout:
-        //   [y0, y1, y2, ..., yn, v0, u0, v1, u1, ..., v(n/4), u(n/4)]
-        yuv2Rgb(
-          cameraImageYUV[i * cameraImageWidth + j],
-          cameraImageYUV[cameraImageYUVOffset + (i / 2) * cameraImageWidth + x_index + 1],
-          cameraImageYUV[cameraImageYUVOffset + (i / 2) * cameraImageWidth + x_index],
-          &cameraImageRGB[rgb_index], &cameraImageRGB[rgb_index + 1],
-          &cameraImageRGB[rgb_index + 2]);
-      }
-    }
-
-  /*
-    size_t xIndex = 0;
-    size_t rgbIndex = 0;
-    size_t yuvOffset1 = 0; 
-    size_t yuvOffset2 = 0; 
-    size_t rgbOffset = 0;
-    for (size_t i = 0; i < cameraImageHeight; ++i) 
-    {
-      yuvOffset1 = i * cameraImageWidth;
-      yuvOffset2 = cameraImageYUVOffset + (i / 2) * cameraImageWidth;
-      rgbOffset = i * cameraImageTextureWidth;
-      for (size_t j = 0; j < cameraImageWidth; ++j) {
-        xIndex = j;
-        if (j % 2 != 0) 
-        {
-          xIndex = j - 1;
-        }
-
-        rgbIndex = (rgbOffset + j) * 3;
-
-        // The YUV texture format is NV21,
-        // yuv_buffer_ buffer layout:
-        //   [y0, y1, y2, ..., yn, v0, u0, v1, u1, ..., v(n/4), u(n/4)]
-        yuv2Rgb(
-          cameraImageYUV[yuvOffset1 + j],
-          cameraImageYUV[yuvOffset2 + xIndex + 1],
-          cameraImageYUV[yuvOffset2 + xIndex],
-          &cameraImageRGBTemp[rgbIndex], 
-          &cameraImageRGBTemp[rgbIndex + 1],
-          &cameraImageRGBTemp[rgbIndex + 2]);
-      }
-    }
-  */
-  }
-
-  memcpy(image, cameraImageRGB, cameraImageRGBSize);
-
-  return result;
-}
 
 bool TangoHandler::updateCameraImageIntoTexture(uint32_t textureId)
 {
@@ -927,9 +745,9 @@ bool TangoHandler::updateCameraImageIntoTexture(uint32_t textureId)
 
   if (!textureIdConnected)
   {
-      TangoErrorType result = TangoService_connectTextureId(TANGO_CAMERA_COLOR, textureId, nullptr, nullptr);
-      if (result != TANGO_SUCCESS) 
-      {
+    TangoErrorType result = TangoService_connectTextureId(TANGO_CAMERA_COLOR, textureId, nullptr, nullptr);
+    if (result != TANGO_SUCCESS) 
+    {
       LOGE("TangoHandler::updateCameraImageIntoTexture: Failed to connect the texture id with error code: %d", result);
       return false;
     }
@@ -942,14 +760,13 @@ bool TangoHandler::updateCameraImageIntoTexture(uint32_t textureId)
   if (tangoBufferIds.empty()) 
   {
       pthread_mutex_unlock( &tangoBufferIdsMutex );
-      // TODO: Is the frame actually being rendered?
-      return false;
+      // If there were no buffer ids locked, just update the texture.
+      TangoErrorType result = TangoService_updateTextureExternalOes(TANGO_CAMERA_COLOR, textureId, &lastTangoImageBufferTimestamp);
+      std::time(&lastTangoImagebufferTimestampTime);  
+      return result == TANGO_SUCCESS;
   }
 
-  // For now, always unlock all the tango buffer ids. We are not able to get a
-  // close call in the GL thread to unlock the last one. For now, the
-  // last texture that was updated should still be in the external GPU buffer.
-
+  // Unlock the oldest locked buffer.
   tangoBufferId = tangoBufferIds.front();
   tangoBufferIds.pop();
 
@@ -961,70 +778,19 @@ bool TangoHandler::updateCameraImageIntoTexture(uint32_t textureId)
     TANGO_CAMERA_COLOR, textureId, tangoBufferId);
   TangoService_unlockCameraBuffer(TANGO_CAMERA_COLOR, tangoBufferId);
 
-  // TangoErrorType result = TangoService_updateTextureExternalOes(TANGO_CAMERA_COLOR, textureId, &lastTangoImageBufferTimestamp);
-
   std::time(&lastTangoImagebufferTimestampTime);  
-
-  // LOGI("JUDAX: TangoHandler::updateCameraImageIntoTexture lastTangoImageBufferTimestamp = %lf", lastTangoImageBufferTimestamp);
 
   return result == TANGO_SUCCESS;
 }
 
 #ifdef TANGO_USE_POINT_CLOUD_CALLBACK
+
 void TangoHandler::onPointCloudAvailable(const TangoPointCloud* pointCloud)
 {
   TangoSupport_updatePointCloud(pointCloudManager, pointCloud);
 }
+
 #endif
-
-void TangoHandler::onCameraFrameAvailable(const TangoImageBuffer* buffer) 
-{
-#ifndef TANGO_USE_YUV_CAMERA
-  return;
-#endif
-
-  if (buffer->format != TANGO_HAL_PIXEL_FORMAT_YCrCb_420_SP) 
-  {
-    LOGE("TangoHandler::onCameraFrameAvailable texture format is not supported by this app");
-    return;
-  }
-
-  if (cameraImageYUVTemp == 0)
-  {
-#ifdef TANGO_USE_POWER_OF_TWO   
-    cameraImageTextureWidth = closestPowerOfTwo(buffer->width);
-    cameraImageTextureHeight = closestPowerOfTwo(buffer->height);
-#else
-    cameraImageTextureWidth = buffer->width;
-    cameraImageTextureHeight = buffer->height;
-#endif      
-    cameraImageWidth = buffer->width;
-    cameraImageHeight = buffer->height;
-
-    pthread_mutex_lock( &cameraImageMutex );
-
-    cameraImageYUVOffset =  buffer->width * buffer->height;
-    cameraImageYUVSize = cameraImageWidth * cameraImageHeight + cameraImageWidth * cameraImageHeight / 2;
-    cameraImageYUV = new uint8_t[cameraImageYUVSize];
-    cameraImageYUVTemp = new uint8_t[cameraImageYUVSize];
-
-    cameraImageRGBSize = cameraImageTextureWidth * cameraImageTextureHeight * 3;
-    cameraImageRGB = new uint8_t[cameraImageRGBSize];
-
-        pthread_cond_broadcast( &cameraImageCondition );
-
-    pthread_mutex_unlock( &cameraImageMutex );
-  }
-
-  pthread_mutex_lock( &cameraImageMutex );
-
-  memcpy(cameraImageYUVTemp, buffer->data, cameraImageYUVSize);
-
-  cameraImageYUVHasChanged = true;
-  lastTangoImageBufferTimestamp = buffer->timestamp;
-
-  pthread_mutex_unlock( &cameraImageMutex );
-}
 
 int TangoHandler::getSensorOrientation() const
 {
