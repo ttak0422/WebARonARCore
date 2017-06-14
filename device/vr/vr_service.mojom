@@ -34,6 +34,7 @@ struct VRDisplayCapabilities {
   bool hasPointCloud;
   bool hasSeeThroughCamera;
   bool hasADFSupport;
+  bool hasMarkerSupport;
 };
 
 // Information about the optical properties for an eye in a VRDisplay.
@@ -72,6 +73,14 @@ struct VRADF {
   string uuid;
   string name;
   uint64 creationTime;
+};
+
+struct VRMarker {
+  uint32 type;
+  uint32 id;
+  string content;
+  array<float, 3> position;
+  array<float, 4> orientation;
 };
 
 struct VRStageParameters {
@@ -133,6 +142,8 @@ interface VRDisplay {
   GetADFs() => (array<VRADF> adfs);
   EnableADF(string uuid);
   DisableADF();
+  [Sync]
+  DetectMarkers(uint32 markerType, float markerSize) => (array<VRMarker> markers);
 
   RequestPresent(bool secureOrigin) => (bool success);
   ExitPresent();

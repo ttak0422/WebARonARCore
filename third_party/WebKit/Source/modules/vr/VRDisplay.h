@@ -21,6 +21,7 @@
 
 namespace gpu {
 namespace gles2 {
+
 class GLES2Interface;
 }
 }
@@ -38,6 +39,7 @@ class VRPointCloud;
 class VRPickingPointAndPlane;
 class VRSeeThroughCamera;
 class VRADF;
+class VRMarker;
 
 class WebGLRenderingContextBase;
 
@@ -68,12 +70,13 @@ class VRDisplay final : public EventTargetWithInlineData,
   void resetPose();
 
   unsigned getMaxNumberOfPointsInPointCloud();
-  void getPointCloud(VRPointCloud* pointCloud, bool justUpdatePointCloud, unsigned pointsToSkip);
+  void getPointCloud(VRPointCloud* pointCloud, bool justUpdatePointCloud, unsigned pointsToSkip, bool transformPoints);
   VRPickingPointAndPlane* getPickingPointAndPlaneInPointCloud(float x, float y);
   VRSeeThroughCamera* getSeeThroughCamera();
   HeapVector<Member<VRADF>> getADFs();
   void enableADF(const String&);
   void disableADF();
+  HeapVector<Member<VRMarker>> detectMarkers(unsigned markerType, float markerSize);
 
   double depthNear() const { return m_depthNear; }
   double depthFar() const { return m_depthFar; }
@@ -161,7 +164,6 @@ class VRDisplay final : public EventTargetWithInlineData,
 
   Member<VRPickingPointAndPlane> m_pickingPointAndPlane;
   Member<VRSeeThroughCamera> m_seeThroughCamera;
-  Member<DOMFloat32Array> m_poseMatrix;
   
   VRLayer m_layer;
   double m_depthNear;

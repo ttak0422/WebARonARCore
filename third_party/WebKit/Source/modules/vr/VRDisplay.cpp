@@ -27,6 +27,7 @@
 #include "modules/vr/VRPickingPointAndPlane.h"
 #include "modules/vr/VRSeeThroughCamera.h"
 #include "modules/vr/VRADF.h"
+#include "modules/vr/VRMarker.h"
 #include "modules/webgl/WebGLRenderingContextBase.h"
 #include "platform/Histogram.h"
 #include "platform/UserGestureIndicator.h"
@@ -121,6 +122,7 @@ void VRDisplay::update(const device::mojom::blink::VRDisplayInfoPtr& display) {
   m_capabilities->setHasPointCloud(display->capabilities->hasPointCloud);
   m_capabilities->setHasSeeThroughCamera(display->capabilities->hasSeeThroughCamera);
   m_capabilities->setHasADFSupport(display->capabilities->hasADFSupport);
+  m_capabilities->setHasMarkerSupport(display->capabilities->hasMarkerSupport);
 
   // Ignore non presenting delegate
   bool isValid = display->leftEye->renderWidth > 0;
@@ -223,12 +225,12 @@ unsigned VRDisplay::getMaxNumberOfPointsInPointCloud() {
   return result;
 }
 
-void VRDisplay::getPointCloud(VRPointCloud* pointCloud, bool justUpdatePointCloud, unsigned pointsToSkip) {
+void VRDisplay::getPointCloud(VRPointCloud* pointCloud, bool justUpdatePointCloud, unsigned pointsToSkip, bool transformPoints) {
   if (!m_display)
     return;
 
   device::mojom::blink::VRPointCloudPtr mojoPointCloud;
-  m_display->GetPointCloud(justUpdatePointCloud, pointsToSkip, &mojoPointCloud);
+  m_display->GetPointCloud(justUpdatePointCloud, pointsToSkip, transformPoints, &mojoPointCloud);
 
   unsigned maxNumberOfPoints;
   m_display->GetMaxNumberOfPointsInPointCloud(&maxNumberOfPoints);
@@ -297,6 +299,25 @@ void VRDisplay::disableADF()
   if (!m_display)
     return;
   m_display->DisableADF();
+}
+
+HeapVector<Member<VRMarker>> VRDisplay::detectMarkers(unsigned markerType, float markerSize)
+{
+  HeapVector<Member<VRMarker>> markers;
+  if (!m_display)
+    return markers;
+  Vector<device::mojom::blink::VRMarkerPtr> mojomMarkers;
+  if (m_display->DetectMarkers(markerType, markerSize, &mojomMarkers) && !mojomMarkers.isEmpty())
+  {
+    markers.resize(mojomMarkers.size());
+    for (size_t i = 0; i < mojomMarkers.size(); i++)
+    {
+      VRMarker* marker = new VRMarker();
+      marker->setMarker(mojomMarkers[i]);
+      markers[i] = marker;
+    }
+  }
+  return markers;
 }
 
 VREyeParameters* VRDisplay::getEyeParameters(const String& whichEye) {
@@ -879,6 +900,8 @@ DEFINE_TRACE(VRDisplay) {
   visitor->trace(m_renderingContext);
   visitor->trace(m_scriptedAnimationController);
   visitor->trace(m_pendingPresentResolvers);
+  visitor->trace(m_pickingPointAndPlane);
+  visitor->trace(m_seeThroughCamera);
 }
 
 }  // namespace blink
