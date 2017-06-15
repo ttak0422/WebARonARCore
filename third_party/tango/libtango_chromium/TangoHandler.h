@@ -40,14 +40,6 @@
 #define TANGO_USE_POINT_CLOUD_CALLBACK
 #define TANGO_USE_CAMERA
 #define TANGO_USE_MARKERS
-// #define TANGO_USE_DRIFT_CORRECTION
-// #define TANGO_USE_AREA_DESCRIPTION
-
-#ifdef TANGO_USE_DRIFT_CORRECTION
-#define TANGO_COORDINATE_FRAME TANGO_COORDINATE_FRAME_AREA_DESCRIPTION
-#else
-#define TANGO_COORDINATE_FRAME TANGO_COORDINATE_FRAME_START_OF_SERVICE
-#endif
 
 #define MAX_NUMBER_OF_TANGO_BUFFER_IDS 1
 
@@ -141,7 +133,7 @@ public:
 
 	bool isConnected() const;
 
-	bool getPose(TangoPoseData* tangoPoseData);
+	bool getPose(TangoPoseData* tangoPoseData, bool* isLocalized);
 	bool getPoseMatrix(float* matrix);
 
 	unsigned getMaxNumberOfPointsInPointCloud() const;
@@ -185,6 +177,7 @@ private:
 	TangoSupportPointCloudManager* pointCloudManager;
 	TangoPointCloud* latestTangoPointCloud;
 	bool latestTangoPointCloudRetrieved;
+	TangoMatrixTransformData depthCameraMatrixTransform;
 
 	uint32_t cameraImageWidth;
 	uint32_t cameraImageHeight;

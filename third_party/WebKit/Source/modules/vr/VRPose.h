@@ -25,6 +25,7 @@ class VRPose final : public GarbageCollected<VRPose>, public ScriptWrappable {
   DOMFloat32Array* linearVelocity() const { return m_linearVelocity; }
   DOMFloat32Array* angularAcceleration() const { return m_angularAcceleration; }
   DOMFloat32Array* linearAcceleration() const { return m_linearAcceleration; }
+  bool localized() const { return m_localized; }
 
   void setPose(const device::mojom::blink::VRPosePtr&);
 
@@ -39,6 +40,7 @@ class VRPose final : public GarbageCollected<VRPose>, public ScriptWrappable {
   Member<DOMFloat32Array> m_linearVelocity;
   Member<DOMFloat32Array> m_angularAcceleration;
   Member<DOMFloat32Array> m_linearAcceleration;
+  bool m_localized;
 };
 
 }  // namespace blink

@@ -90,11 +90,14 @@ mojom::VRPosePtr TangoVRDevice::GetPose() {
   TangoPoseData tangoPoseData;
 
   mojom::VRPosePtr pose = nullptr;
-  if (TangoHandler::getInstance()->isConnected() && TangoHandler::getInstance()->getPose(&tangoPoseData))
+  bool isLocalized = false;
+
+  if (TangoHandler::getInstance()->isConnected() && TangoHandler::getInstance()->getPose(&tangoPoseData, &isLocalized))
   {
     pose = mojom::VRPose::New();
 
     pose->timestamp = base::Time::Now().ToJsTime();
+    pose->localized = isLocalized;
 
     pose->orientation.emplace(4);
     pose->position.emplace(3);

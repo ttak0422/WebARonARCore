@@ -30,6 +30,7 @@ void VRPose::setPose(const device::mojom::blink::VRPosePtr& state) {
   m_linearVelocity = mojoArrayToFloat32Array(state->linearVelocity);
   m_angularAcceleration = mojoArrayToFloat32Array(state->angularAcceleration);
   m_linearAcceleration = mojoArrayToFloat32Array(state->linearAcceleration);
+  m_localized = state->localized;
 }
 
 DEFINE_TRACE(VRPose) {

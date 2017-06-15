@@ -534,6 +534,7 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
         requestExternalStorageReadPermission();
         requestRecordAudioPermission();
         requestLocationPermission();
+        requestADFPermission();
 
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         Display display = windowManager.getDefaultDisplay();
