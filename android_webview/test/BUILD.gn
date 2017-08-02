@@ -17,6 +17,7 @@ group("test") {
 
 android_apk("android_webview_apk") {
   deps = [
+    ":tango_java",
     "//third_party/android_tools:android_support_v7_appcompat_java",
     ":android_webview_apk_assets",
     ":android_webview_apk_resources",
@@ -34,7 +35,6 @@ android_apk("android_webview_apk") {
   android_manifest = "shell/AndroidManifest.xml"
   java_files = [
     "shell/src/org/chromium/android_webview/shell/TangoJniNative.java",
-    "shell/src/org/chromium/android_webview/shell/TangoInitializationHelper.java",
     "shell/src/org/chromium/android_webview/shell/AwShellActivity.java",
     "shell/src/org/chromium/android_webview/shell/AwShellApplication.java",
     "shell/src/org/chromium/android_webview/shell/AwShellResourceProvider.java",
@@ -53,8 +53,8 @@ android_apk("android_webview_apk") {
   ]
 
   loadable_modules = [
-    "../../third_party/tango/libtango_chromium/armeabi-v7a/libtango_chromium.so",
-    "../../third_party/tango/libtango_support_api/armeabi-v7a/libtango_support_api.so"  
+    "../../third_party/tango/libtango_chromium/arm64-v8a/libtango_chromium.so",
+    "../../third_party/tango/libtango_support/arm64-v8a/libtango_support.so"  
   ]
 
   native_lib_version_rule = "//build/util:chrome_version_json"
@@ -107,12 +107,14 @@ shared_library("libstandalonelibwebviewchromium") {
   ldflags = [ "-Wl,-shared,-Bsymbolic" ]
 
   ldflags += [
-    "-L../../third_party/tango/libtango_chromium/armeabi-v7a",
+    "-L../../third_party/tango/libtango_chromium/arm64-v8a",
     "-ltango_chromium",
-    "-L../../third_party/tango/libtango_client_api/armeabi-v7a",
+    "-L../../third_party/tango/libtango_client_api/arm64-v8a",
     "-ltango_client_api",
-    "-L../../third_party/tango/libtango_support_api/armeabi-v7a",
-    "-ltango_support_api"
+    "-L../../third_party/tango/libtango_client_api2/arm64-v8a",
+    "-ltango_client_api2",
+    "-L../../third_party/tango/libtango_support/arm64-v8a",
+    "-ltango_support"
   ]
 
   deps = [
@@ -316,3 +318,11 @@ shared_library("libdrawgl") {
   ]
   configs -= [ "//build/config/android:hide_native_jni_exports" ]
 }
+
+android_aar_prebuilt("tango_java") {
+  aar_path = "//third_party/tango/tango_java_lib.aar"
+#  proguard_configs = [ "shell/VRWebGL/jni/3rdparty/gvr_sdk_mobile_1.40.0/proguard-gvr.txt" ]
+  ignore_manifest = true  # Ignored because manifest merging is not supported (http://crbug.com/643967)
+  ignore_native_libraries = true
+}
+

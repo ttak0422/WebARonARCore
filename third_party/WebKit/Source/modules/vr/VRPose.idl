@@ -12,5 +12,4 @@
     readonly attribute Float32Array? orientation;
     readonly attribute Float32Array? angularVelocity;
     readonly attribute Float32Array? angularAcceleration;
-    readonly attribute boolean localized;
 };

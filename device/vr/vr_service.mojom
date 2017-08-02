@@ -32,10 +32,7 @@ struct VRDisplayCapabilities {
   bool hasPosition;
   bool hasExternalDisplay;
   bool canPresent;
-  bool hasPointCloud;
   bool hasSeeThroughCamera;
-  bool hasADFSupport;
-  bool hasMarkerSupport;
 };
 
 // Information about the optical properties for an eye in a VRDisplay.
@@ -46,14 +43,7 @@ struct VREyeParameters {
   uint32 renderHeight;
 };
 
-struct VRPointCloud {
-  uint32 numberOfPoints;
-  array<float> points;
-  array<float, 16> pointsTransformMatrix;
-  bool pointsAlreadyTransformed;
-};
-
-struct VRPickingPointAndPlane {
+struct VRHit {
   array<double, 3> point;
   array<double, 4> plane;
 };
@@ -68,20 +58,6 @@ struct VRSeeThroughCamera {
   double pointX;
   double pointY;
   int64 orientation;
-};
-
-struct VRADF {
-  string uuid;
-  string name;
-  uint64 creationTime;
-};
-
-struct VRMarker {
-  uint32 type;
-  uint32 id;
-  string content;
-  array<float, 3> position;
-  array<float, 4> orientation;
 };
 
 struct VRStageParameters {
@@ -132,19 +108,9 @@ interface VRDisplay {
   ResetPose();
 
   [Sync]
-  GetMaxNumberOfPointsInPointCloud() => (uint32 maxNumberOfPointsInPointCloud);
-  [Sync]
-  GetPointCloud(bool justUpdatePointCloud, uint32 pointsToSkip, bool transformPoints) => (VRPointCloud? pointCloud);
-  [Sync]
   GetSeeThroughCamera() => (VRSeeThroughCamera? seeThroughCamera);
   [Sync]
-  GetPickingPointAndPlaneInPointCloud(float x, float y) => (VRPickingPointAndPlane? pointAndPlane);
-  [Sync]
-  GetADFs() => (array<VRADF> adfs);
-  EnableADF(string uuid);
-  DisableADF();
-  [Sync]
-  DetectMarkers(uint32 markerType, float markerSize) => (array<VRMarker> markers);
+  HitTest(float x, float y) => (array<VRHit> hits);
 
   RequestPresent(bool secureOrigin) => (bool success);
   ExitPresent();

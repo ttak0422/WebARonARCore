@@ -43,33 +43,14 @@ void VRDisplayImpl::ResetPose() {
   device_->ResetPose();
 }
 
-void VRDisplayImpl::GetMaxNumberOfPointsInPointCloud(const GetMaxNumberOfPointsInPointCloudCallback& callback) 
+void VRDisplayImpl::HitTest(float x, float y, const HitTestCallback& callback)
 {
   if (!device_->IsAccessAllowed(this)) {
-    callback.Run(0);
+    callback.Run(std::vector<mojom::VRHitPtr>());
     return;
   }
 
-  callback.Run(device_->GetMaxNumberOfPointsInPointCloud());
-}
-
-void VRDisplayImpl::GetPointCloud(bool justUpdatePointCloud, unsigned pointsToSkip, bool transformPoints, const GetPointCloudCallback& callback) {
-  if (!device_->IsAccessAllowed(this)) {
-    callback.Run(nullptr);
-    return;
-  }
-  
-  callback.Run(device_->GetPointCloud(justUpdatePointCloud, pointsToSkip, transformPoints));  
-}
-
-void VRDisplayImpl::GetPickingPointAndPlaneInPointCloud(float x, float y, const GetPickingPointAndPlaneInPointCloudCallback& callback)
-{
-  if (!device_->IsAccessAllowed(this)) {
-    callback.Run(nullptr);
-    return;
-  }
-
-  callback.Run(device_->GetPickingPointAndPlaneInPointCloud(x, y));
+  callback.Run(device_->HitTest(x, y));
 }
 
 void VRDisplayImpl::GetSeeThroughCamera(const GetSeeThroughCameraCallback& callback) {
@@ -79,32 +60,6 @@ void VRDisplayImpl::GetSeeThroughCamera(const GetSeeThroughCameraCallback& callb
   }
 
   callback.Run(device_->GetSeeThroughCamera());
-}
-
-void VRDisplayImpl::GetADFs(const GetADFsCallback& callback) {
-  if (!device_->IsAccessAllowed(this)) {
-    callback.Run(std::vector<mojom::VRADFPtr>());
-    return;
-  }
-
-  callback.Run(device_->GetADFs());
-}
-
-void VRDisplayImpl::EnableADF(const std::string& uuid) {
-  device_->EnableADF(uuid);
-}
-
-void VRDisplayImpl::DisableADF() {
-  device_->DisableADF();
-}
-
-void VRDisplayImpl::DetectMarkers(unsigned markerType, float markerSize, const DetectMarkersCallback& callback) {
-  if (!device_->IsAccessAllowed(this)) {
-    callback.Run(std::vector<mojom::VRMarkerPtr>());
-    return;
-  }
-
-  callback.Run(device_->DetectMarkers(markerType, markerSize));
 }
 
 void VRDisplayImpl::RequestPresent(bool secure_origin,

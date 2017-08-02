@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#include <jni.h>
-
 #include "TangoHandler.h"
 
 using namespace tango_chromium;
@@ -23,6 +21,12 @@ using namespace tango_chromium;
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+JNIEXPORT void JNICALL
+Java_org_chromium_android_1webview_shell_TangoJniNative_cacheJavaObjects(
+    JNIEnv* env, jobject, jobject jTangoUpdateCallback) {
+  TangoService_CacheJavaObjects(env, jTangoUpdateCallback);
+}
 
 JNIEXPORT void JNICALL
 Java_org_chromium_android_1webview_shell_TangoJniNative_onCreate(JNIEnv* env, jobject obj, jobject caller_activity, jint activityOrientation, jint sensorOrientation) 
@@ -37,9 +41,9 @@ Java_org_chromium_android_1webview_shell_TangoJniNative_onDestroy(JNIEnv* env, j
 }
 
 JNIEXPORT void JNICALL
-Java_org_chromium_android_1webview_shell_TangoJniNative_onTangoServiceConnected(JNIEnv* env, jobject, jobject iBinder) 
+Java_org_chromium_android_1webview_shell_TangoJniNative_onTangoServiceConnected(JNIEnv* env, jobject, jobject tango) 
 {
-	TangoHandler::getInstance()->onTangoServiceConnected(env, iBinder);
+	TangoHandler::getInstance()->onTangoServiceConnected(env, tango);
 }
 
 JNIEXPORT void JNICALL
@@ -52,6 +56,25 @@ JNIEXPORT void JNICALL
 Java_org_chromium_android_1webview_shell_TangoJniNative_onConfigurationChanged(JNIEnv*, jobject, int activityOrientation, int sensorOrientation) 
 {
 	TangoHandler::getInstance()->onDeviceRotationChanged(activityOrientation, sensorOrientation);
+}
+
+JNIEXPORT void JNICALL
+Java_org_chromium_android_1webview_shell_TangoJniNative_onTextureAvailable(
+    JNIEnv* env, jobject, jint cameraId) {
+  TangoService_JavaCallback_OnTextureAvailable(static_cast<int>(cameraId));
+}
+
+JNIEXPORT void JNICALL
+Java_org_chromium_android_1webview_shell_TangoJniNative_onImageAvailableCallback(
+    JNIEnv* env, jobject, jobject image, jobject metadata, jint cameraId) {
+  TangoService_JavaCallback_OnImageAvailable(env, static_cast<int>(cameraId),
+                                             image, metadata);
+}
+
+JNIEXPORT void JNICALL
+Java_org_chromium_android_1webview_shell_TangoJniNative_onTangoEventCallback(
+    JNIEnv* env, jobject, jobject event) {
+  TangoService_JavaCallback_OnTangoEvent(env, event);
 }
 
 #ifdef __cplusplus

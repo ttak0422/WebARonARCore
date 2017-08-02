@@ -86,6 +86,8 @@ import android.speech.RecognitionListener;
 
 import android.webkit.JavascriptInterface;
 
+import com.google.atap.tangoservice.Tango;
+
 /**
  * This is a lightweight activity for tests that only require WebView functionality.
  */
@@ -111,6 +113,7 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
     private ImageButton mNextButton;
     private ImageButton mQRCodeButton;
     private boolean mInitialized = false;
+    private Tango mTango = null;
 
     private class SpeechRecognition implements RecognitionListener
     {
@@ -343,22 +346,6 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
         }
         return alertDialog;
     }    
-
-    // Tango Service connection.
-    ServiceConnection mTangoServiceConnection = new ServiceConnection()
-    {
-        public void onServiceConnected(ComponentName name, IBinder service)
-        {
-            TangoJniNative.onTangoServiceConnected(service);
-        }
-
-        public void onServiceDisconnected(ComponentName name)
-        {
-            // Handle this if you need to gracefully shutdown/retry
-            // in the event that Tango itself crashes/gets upgraded while
-            // running.
-        }
-    };
 
     private void saveStringToPreferences(String name, String value) 
     {
@@ -595,7 +582,12 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
 
         if (!mInitialized) return;
 
-        TangoInitializationHelper.bindTangoService(this, mTangoServiceConnection);
+        mTango = new Tango(this, new Runnable() {
+                @Override
+                public void run() {
+                    TangoJniNative.onTangoServiceConnected(mTango);
+                }
+        });
     }
 
     @Override
@@ -607,7 +599,6 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
 
         // Disconnect from Tango Service, release all the resources that the app is holding from Tango Service.
         TangoJniNative.onPause();
-        unbindService(mTangoServiceConnection);
     }
 
     @Override

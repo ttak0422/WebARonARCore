@@ -23,11 +23,8 @@
 #include "modules/vr/VRLayer.h"
 #include "modules/vr/VRPose.h"
 #include "modules/vr/VRStageParameters.h"
-#include "modules/vr/VRPointCloud.h"
-#include "modules/vr/VRPickingPointAndPlane.h"
+#include "modules/vr/VRHit.h"
 #include "modules/vr/VRSeeThroughCamera.h"
-#include "modules/vr/VRADF.h"
-#include "modules/vr/VRMarker.h"
 #include "modules/webgl/WebGLRenderingContextBase.h"
 #include "platform/Histogram.h"
 #include "platform/UserGestureIndicator.h"
@@ -119,10 +116,7 @@ void VRDisplay::update(const device::mojom::blink::VRDisplayInfoPtr& display) {
       display->capabilities->hasExternalDisplay);
   m_capabilities->setCanPresent(display->capabilities->canPresent);
   m_capabilities->setMaxLayers(display->capabilities->canPresent ? 1 : 0);
-  m_capabilities->setHasPointCloud(display->capabilities->hasPointCloud);
   m_capabilities->setHasSeeThroughCamera(display->capabilities->hasSeeThroughCamera);
-  m_capabilities->setHasADFSupport(display->capabilities->hasADFSupport);
-  m_capabilities->setHasMarkerSupport(display->capabilities->hasMarkerSupport);
 
   // Ignore non presenting delegate
   bool isValid = display->leftEye->renderWidth > 0;
@@ -145,12 +139,6 @@ void VRDisplay::update(const device::mojom::blink::VRDisplayInfoPtr& display) {
   if (display->capabilities->hasSeeThroughCamera) {
     if (!m_seeThroughCamera) {
       m_seeThroughCamera = new VRSeeThroughCamera();
-    }
-  }
-
-  if (display->capabilities->hasPointCloud) {
-    if (!m_pickingPointAndPlane) {
-      m_pickingPointAndPlane = new VRPickingPointAndPlane();
     }
   }
 
@@ -215,41 +203,24 @@ void VRDisplay::resetPose() {
   m_display->ResetPose();
 }
 
-unsigned VRDisplay::getMaxNumberOfPointsInPointCloud() {
-  if (!m_display)
-    return 0;
+HeapVector<Member<VRHit>> VRDisplay::hitTest(float x, float y) {
+  HeapVector<Member<VRHit>> hits;
+  // hits.resize(N);
+  // hits[i] = X;
+  return hits;
 
-  unsigned result;
-  m_display->GetMaxNumberOfPointsInPointCloud(&result);
+  // if (!m_display || !m_pickingPointAndPlane)
+  //   return nullptr;
 
-  return result;
-}
-
-void VRDisplay::getPointCloud(VRPointCloud* pointCloud, bool justUpdatePointCloud, unsigned pointsToSkip, bool transformPoints) {
-  if (!m_display)
-    return;
-
-  device::mojom::blink::VRPointCloudPtr mojoPointCloud;
-  m_display->GetPointCloud(justUpdatePointCloud, pointsToSkip, transformPoints, &mojoPointCloud);
-
-  unsigned maxNumberOfPoints;
-  m_display->GetMaxNumberOfPointsInPointCloud(&maxNumberOfPoints);
-  pointCloud->setPointCloud(maxNumberOfPoints, mojoPointCloud);
-}
-
-VRPickingPointAndPlane* VRDisplay::getPickingPointAndPlaneInPointCloud(float x, float y) {
-  if (!m_display || !m_pickingPointAndPlane)
-    return nullptr;
-
-  device::mojom::blink::VRPickingPointAndPlanePtr mojoPickingPointAndPlane;
-  m_display->GetPickingPointAndPlaneInPointCloud(x, y, &mojoPickingPointAndPlane);
-  if (mojoPickingPointAndPlane.is_null()) {
-    return nullptr;
-  }
-  else {
-    m_pickingPointAndPlane->setPickingPointAndPlane(mojoPickingPointAndPlane);
-  }
-  return m_pickingPointAndPlane;
+  // device::mojom::blink::VRPickingPointAndPlanePtr mojoPickingPointAndPlane;
+  // m_display->GetPickingPointAndPlaneInPointCloud(x, y, &mojoPickingPointAndPlane);
+  // if (mojoPickingPointAndPlane.is_null()) {
+  //   return nullptr;
+  // }
+  // else {
+  //   m_pickingPointAndPlane->setPickingPointAndPlane(mojoPickingPointAndPlane);
+  // }
+  // return m_pickingPointAndPlane;
 }
 
 VRSeeThroughCamera* VRDisplay::getSeeThroughCamera()
@@ -266,58 +237,6 @@ VRSeeThroughCamera* VRDisplay::getSeeThroughCamera()
     m_seeThroughCamera->setSeeThroughCamera(seeThroughCamera);
   }
   return m_seeThroughCamera;
-}
-
-HeapVector<Member<VRADF>> VRDisplay::getADFs()
-{
-  HeapVector<Member<VRADF>> adfs;
-  if (!m_display)
-    return adfs;
-  Vector<device::mojom::blink::VRADFPtr> mojomADFs;
-  if (m_display->GetADFs(&mojomADFs) && !mojomADFs.isEmpty())
-  {
-    adfs.resize(mojomADFs.size());
-    for (size_t i = 0; i < mojomADFs.size(); i++)
-    {
-      VRADF* adf = new VRADF();
-      adf->setADF(mojomADFs[i]);
-      adfs[i] = adf;
-    }
-  }
-  return adfs;
-}
-
-void VRDisplay::enableADF(const String& uuid)
-{
-  if (!m_display)
-    return;
-  m_display->EnableADF(uuid);
-}
-
-void VRDisplay::disableADF()
-{
-  if (!m_display)
-    return;
-  m_display->DisableADF();
-}
-
-HeapVector<Member<VRMarker>> VRDisplay::detectMarkers(unsigned markerType, float markerSize)
-{
-  HeapVector<Member<VRMarker>> markers;
-  if (!m_display)
-    return markers;
-  Vector<device::mojom::blink::VRMarkerPtr> mojomMarkers;
-  if (m_display->DetectMarkers(markerType, markerSize, &mojomMarkers) && !mojomMarkers.isEmpty())
-  {
-    markers.resize(mojomMarkers.size());
-    for (size_t i = 0; i < mojomMarkers.size(); i++)
-    {
-      VRMarker* marker = new VRMarker();
-      marker->setMarker(mojomMarkers[i]);
-      markers[i] = marker;
-    }
-  }
-  return markers;
 }
 
 VREyeParameters* VRDisplay::getEyeParameters(const String& whichEye) {
@@ -900,7 +819,6 @@ DEFINE_TRACE(VRDisplay) {
   visitor->trace(m_renderingContext);
   visitor->trace(m_scriptedAnimationController);
   visitor->trace(m_pendingPresentResolvers);
-  visitor->trace(m_pickingPointAndPlane);
   visitor->trace(m_seeThroughCamera);
 }
 

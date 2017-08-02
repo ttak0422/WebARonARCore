@@ -4,8 +4,7 @@
 
 [
 	RuntimeEnabled=WebVR
-] interface VRADF {
-	readonly attribute DOMString uuid;
-	readonly attribute DOMString name;
-	readonly attribute unsigned long creationTime;
+] interface VRHit {
+    readonly attribute Float32Array? point;
+    readonly attribute Float32Array? plane;
 };

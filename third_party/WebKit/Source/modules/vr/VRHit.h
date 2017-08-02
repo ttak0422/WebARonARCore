@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef VRPickingPointAndPlane_h
-#define VRPickingPointAndPlane_h
+#ifndef VRHit_h
+#define VRHit_h
 
 #include "bindings/core/v8/ScriptWrappable.h"
 #include "core/dom/DOMTypedArray.h"
@@ -13,15 +13,15 @@
 
 namespace blink {
 
-class VRPickingPointAndPlane final : public GarbageCollected<VRPickingPointAndPlane>, public ScriptWrappable {
+class VRHit final : public GarbageCollected<VRHit>, public ScriptWrappable {
     DEFINE_WRAPPERTYPEINFO();
 public:
-    VRPickingPointAndPlane();
+    VRHit();
     
     DOMFloat32Array* point() const { return m_point; }
     DOMFloat32Array* plane() const { return m_plane; }
 
-    void setPickingPointAndPlane(const device::mojom::blink::VRPickingPointAndPlanePtr&);
+    void setHit(const device::mojom::blink::VRHitPtr&);
 
     DECLARE_VIRTUAL_TRACE();
 
@@ -32,4 +32,4 @@ private:
 
 } // namespace blink
 
-#endif // VRPickingPointAndPlane_h
+#endif // VRHit_h

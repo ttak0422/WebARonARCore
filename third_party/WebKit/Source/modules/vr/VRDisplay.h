@@ -35,11 +35,8 @@ class VREyeParameters;
 class VRFrameData;
 class VRStageParameters;
 class VRPose;
-class VRPointCloud;
-class VRPickingPointAndPlane;
+class VRHit;
 class VRSeeThroughCamera;
-class VRADF;
-class VRMarker;
 
 class WebGLRenderingContextBase;
 
@@ -69,14 +66,8 @@ class VRDisplay final : public EventTargetWithInlineData,
   VRPose* getPose();
   void resetPose();
 
-  unsigned getMaxNumberOfPointsInPointCloud();
-  void getPointCloud(VRPointCloud* pointCloud, bool justUpdatePointCloud, unsigned pointsToSkip, bool transformPoints);
-  VRPickingPointAndPlane* getPickingPointAndPlaneInPointCloud(float x, float y);
+  HeapVector<Member<VRHit>> hitTest(float x, float y);
   VRSeeThroughCamera* getSeeThroughCamera();
-  HeapVector<Member<VRADF>> getADFs();
-  void enableADF(const String&);
-  void disableADF();
-  HeapVector<Member<VRMarker>> detectMarkers(unsigned markerType, float markerSize);
 
   double depthNear() const { return m_depthNear; }
   double depthFar() const { return m_depthFar; }
@@ -162,7 +153,6 @@ class VRDisplay final : public EventTargetWithInlineData,
   Member<VREyeParameters> m_eyeParametersRight;
   device::mojom::blink::VRPosePtr m_framePose;
 
-  Member<VRPickingPointAndPlane> m_pickingPointAndPlane;
   Member<VRSeeThroughCamera> m_seeThroughCamera;
   
   VRLayer m_layer;

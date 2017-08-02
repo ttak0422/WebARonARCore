@@ -17,7 +17,7 @@
 # ==========================================================
 # tango_client_api
 # ==========================================================
-LOCAL_PATH := ../../../../../third_party/tango/libtango_client_api/armeabi-v7a
+LOCAL_PATH := ../../../../../third_party/tango/libtango_client_api/arm64-v8a
 include $(CLEAR_VARS)
 LOCAL_MODULE := tango_client_api
 LOCAL_SRC_FILES := \
@@ -25,13 +25,23 @@ LOCAL_SRC_FILES := \
 include $(PREBUILT_SHARED_LIBRARY)
 
 # ==========================================================
-# tango_support_api
+# tango_client_api2
 # ==========================================================
-LOCAL_PATH := ../../../../../third_party/tango/libtango_support_api/armeabi-v7a
+LOCAL_PATH := ../../../../../third_party/tango/libtango_client_api2/arm64-v8a
 include $(CLEAR_VARS)
-LOCAL_MODULE := tango_support_api
+LOCAL_MODULE := tango_client_api2
 LOCAL_SRC_FILES := \
-	libtango_support_api.so
+	libtango_client_api2.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+# ==========================================================
+# tango_support
+# ==========================================================
+LOCAL_PATH := ../../../../../third_party/tango/libtango_support/arm64-v8a
+include $(CLEAR_VARS)
+LOCAL_MODULE := tango_support
+LOCAL_SRC_FILES := \
+	libtango_support.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 # ==========================================================
@@ -43,10 +53,11 @@ LOCAL_MODULE := libtango_chromium
 LOCAL_C_INCLUDES := \
 	. \
 	../../../../../third_party/tango/libtango_client_api \
-	../../../../../third_party/tango/libtango_support_api
+	../../../../../third_party/tango/libtango_client_api2 \
+	../../../../../third_party/tango/libtango_support
 LOCAL_SRC_FILES := TangoHandler.cpp \
                    TangoHandlerJNIInterface.cpp
 LOCAL_CFLAGS := -std=gnu++11 -Werror -fexceptions
-LOCAL_SHARED_LIBRARIES := tango_client_api tango_support_api
+LOCAL_SHARED_LIBRARIES := tango_client_api tango_client_api2 tango_support
 LOCAL_LDLIBS := -llog -landroid -lGLESv2 -lEGL
 include $(BUILD_SHARED_LIBRARY)

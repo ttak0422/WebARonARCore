@@ -42,10 +42,7 @@ mojom::VRDisplayInfoPtr GvrDevice::GetVRDevice() {
   device->capabilities->hasPosition = false;
   device->capabilities->hasExternalDisplay = false;
   device->capabilities->canPresent = true;
-  device->capabilities->hasPointCloud = false;
   device->capabilities->hasSeeThroughCamera = false;
-  device->capabilities->hasADFSupport = false;  
-  device->capabilities->hasMarkerSupport = false;
 
   device->leftEye = mojom::VREyeParameters::New();
   device->rightEye = mojom::VREyeParameters::New();
@@ -226,44 +223,15 @@ void GvrDevice::ResetPose() {
     gvr_api->RecenterTracking();
 }
 
-unsigned GvrDevice::GetMaxNumberOfPointsInPointCloud()
-{
-  return 0;
-}
-
-mojom::VRPointCloudPtr GvrDevice::GetPointCloud(bool justUpdatePointCloud, unsigned pointsToSkip, bool transformPoints)
-{
-  return nullptr;
-}
-
 mojom::VRSeeThroughCameraPtr GvrDevice::GetSeeThroughCamera()
 {
   return nullptr;
 }
 
-mojom::VRPickingPointAndPlanePtr GvrDevice::GetPickingPointAndPlaneInPointCloud(float x, float y)
+std::vector<mojom::VRHitPtr> GvrDevice::HitTest(float x, float y)
 {
-  return nullptr;
-}
-
-std::vector<mojom::VRADFPtr> GvrDevice::GetADFs()
-{
-  std::vector<mojom::VRADFPtr> adfs;
-  return adfs;
-}
-
-void GvrDevice::EnableADF(const std::string& uuid)
-{
-}
-
-void GvrDevice::DisableADF()
-{
-}
-
-std::vector<mojom::VRMarkerPtr> GvrDevice::DetectMarkers(unsigned markerType, float markerSize)
-{
-  std::vector<mojom::VRMarkerPtr> markers;
-  return markers;
+  std::vector<mojom::VRHitPtr> hits;
+  return hits;
 }
 
 void GvrDevice::RequestPresent(const base::Callback<void(bool)>& callback) {

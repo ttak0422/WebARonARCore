@@ -32,14 +32,8 @@ class VRDisplayImpl : public mojom::VRDisplay {
   void GetPose(const GetPoseCallback& callback) override;
   void ResetPose() override;
 
-  void GetMaxNumberOfPointsInPointCloud(const GetMaxNumberOfPointsInPointCloudCallback& callback) override;
-  void GetPointCloud(bool justUpdatePointCloud, unsigned pointsToSkip, bool transformPoints, const GetPointCloudCallback& callback) override;
-  void GetPickingPointAndPlaneInPointCloud(float x, float y, const GetPickingPointAndPlaneInPointCloudCallback& callback) override;
+  void HitTest(float x, float y, const HitTestCallback& callback) override;
   void GetSeeThroughCamera(const GetSeeThroughCameraCallback& callback) override;
-  void GetADFs(const GetADFsCallback& callback) override;
-  void EnableADF(const std::string& uuid) override;
-  void DisableADF() override;
-  void DetectMarkers(unsigned markerType, float markerSize, const DetectMarkersCallback& callback) override;
 
   void RequestPresent(bool secure_origin,
                       const RequestPresentCallback& callback) override;

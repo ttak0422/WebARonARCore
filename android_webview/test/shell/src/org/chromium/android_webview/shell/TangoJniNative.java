@@ -16,6 +16,16 @@
 
 package org.chromium.android_webview.shell;
 
+import com.google.atap.tangoservice.Tango;
+import com.google.atap.tangoservice.Tango.TangoUpdateCallback;
+import com.google.atap.tangoservice.TangoCameraMetadata;
+import com.google.atap.tangoservice.TangoConfig;
+import com.google.atap.tangoservice.TangoCoordinateFramePair;
+import com.google.atap.tangoservice.TangoEvent;
+import com.google.atap.tangoservice.TangoImage;
+import com.google.atap.tangoservice.TangoPointCloudData;
+import com.google.atap.tangoservice.TangoPoseData;
+
 import android.app.Activity;
 import android.os.IBinder;
 import android.util.Log;
@@ -28,18 +38,40 @@ import android.util.Log;
  */
 public class TangoJniNative {
 
+    private static TangoUpdateCallback mTangoUpdateCallbackProxy = new TangoUpdateCallback() {
+        @Override
+        public void onPoseAvailable(TangoPoseData pose)
+        {
+        }
+        @Override
+        public void onFrameAvailable(int cameraId) 
+        {
+            onTextureAvailable(cameraId);
+        }
+        @Override
+        public void onTangoEvent(TangoEvent event) 
+        {
+           onTangoEventCallback(event);
+        }
+        @Override
+        public void onPointCloudAvailable(TangoPointCloudData pointCloud) 
+        {
+          Log.d("AugmentedReality", "Point cloud arrived");
+        }
+        @Override
+        public void onImageAvailable(TangoImage image, TangoCameraMetadata metadata, int cameraId) 
+        {
+            onImageAvailableCallback(image, metadata, cameraId);
+        }
+    };
+
     public static boolean initialize()
     {
-        // This project depends on tango_client_api, so we need to make sure we load
-        // the correct library first.
-        if (TangoInitializationHelper.loadTangoSharedLibrary() ==
-                TangoInitializationHelper.ARCH_ERROR) {
-            Log.e("TangoJNINative", "ERROR! Unable to load libtango_client_api.so!");
-            return false;
-        }
         System.loadLibrary("tango_chromium");
         return true;
     }
+
+    public static native void cacheJavaObjects(TangoUpdateCallback callbackProxy);
 
     /**
      * Check if the Tango Core version is compatible with this app.
@@ -47,14 +79,15 @@ public class TangoJniNative {
      *
      * @param callerActivity the caller activity of this function.
      */
-    public static native void onCreate(Activity callerActivity, int activityOrientation, int sensorOrientation);
+    public static native void onCreate(
+        Activity callerActivity, int activityOrientation, int sensorOrientation);
 
     /*
      * Called when the Tango service is connected.
      *
      * @param binder The native binder object.
      */
-    public static native void onTangoServiceConnected(IBinder binder);
+    public static native void onTangoServiceConnected(Tango tango);
 
     /**
      * Disconnect and stop Tango service.
@@ -63,5 +96,14 @@ public class TangoJniNative {
 
     public static native void onDestroy();
 
-    public static native void onConfigurationChanged(int activityOrientation, int sensorOrientation);
+    public static native void onConfigurationChanged(
+        int activityOrientation, int sensorOrientation);
+
+    public static native void onTextureAvailable(int cameraId);
+
+    public static native void onTangoEventCallback(TangoEvent event);
+
+    public static native void onImageAvailableCallback(
+        TangoImage image, TangoCameraMetadata metadata, int cameraId);
+
 }

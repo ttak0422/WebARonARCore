@@ -4,7 +4,7 @@
 
 #include "device/vr/android/tango/tango_vr_device.h"
 
-#include "tango_support_api.h"
+#include "tango_support.h"
 
 #include "base/trace_event/trace_event.h"
 
@@ -14,8 +14,6 @@
 
 using base::android::AttachCurrentThread;
 using tango_chromium::TangoHandler;
-using tango_chromium::ADF;
-using tango_chromium::Marker;
 
 namespace device {
 
@@ -39,10 +37,7 @@ mojom::VRDisplayInfoPtr TangoVRDevice::GetVRDevice() {
   device->capabilities->hasPosition = true;
   device->capabilities->hasExternalDisplay = false;
   device->capabilities->canPresent = false;
-  device->capabilities->hasPointCloud = true;
   device->capabilities->hasSeeThroughCamera = true;
-  device->capabilities->hasADFSupport = true;
-  device->capabilities->hasMarkerSupport = true;
 
   device->leftEye = mojom::VREyeParameters::New();
   device->rightEye = mojom::VREyeParameters::New();
@@ -119,38 +114,6 @@ void TangoVRDevice::ResetPose() {
   // TODO
 }
 
-unsigned TangoVRDevice::GetMaxNumberOfPointsInPointCloud()
-{
-  return TangoHandler::getInstance()->getMaxNumberOfPointsInPointCloud();
-}
-
-mojom::VRPointCloudPtr TangoVRDevice::GetPointCloud(bool justUpdatePointCloud, unsigned pointsToSkip, bool transformPoints)
-{
-  TangoHandler* tangoHandler = TangoHandler::getInstance();
-  mojom::VRPointCloudPtr pointCloudPtr = nullptr;
-  if (tangoHandler->isConnected())
-  {
-    if (!justUpdatePointCloud)
-    {
-      pointCloudPtr = mojom::VRPointCloud::New();
-      pointCloudPtr->points.resize(tangoHandler->getMaxNumberOfPointsInPointCloud() * 3);
-      pointCloudPtr->pointsTransformMatrix.resize(16);
-      if (!tangoHandler->getPointCloud(&(pointCloudPtr->numberOfPoints), &(pointCloudPtr->points[0]), justUpdatePointCloud, pointsToSkip, transformPoints, &(pointCloudPtr->pointsTransformMatrix[0])))
-      {
-        pointCloudPtr = nullptr;
-      }
-      pointCloudPtr->pointsAlreadyTransformed = transformPoints;
-    }
-    else 
-    {
-      // If the point cloud should only be updated, why create a whole array?
-      uint32_t numberOfPoints;
-      tangoHandler->getPointCloud(&numberOfPoints, 0, justUpdatePointCloud, pointsToSkip, transformPoints, 0);
-    }
-  }
-  return pointCloudPtr;
-}
-
 mojom::VRSeeThroughCameraPtr TangoVRDevice::GetSeeThroughCamera()
 {
   TangoHandler* tangoHandler = TangoHandler::getInstance();
@@ -167,98 +130,22 @@ mojom::VRSeeThroughCameraPtr TangoVRDevice::GetSeeThroughCamera()
   return seeThroughCameraPtr;
 }
 
-mojom::VRPickingPointAndPlanePtr TangoVRDevice::GetPickingPointAndPlaneInPointCloud(float x, float y)
+std::vector<mojom::VRHitPtr> TangoVRDevice::HitTest(float x, float y)
 {
-  mojom::VRPickingPointAndPlanePtr pickingPointAndPlanePtr = nullptr;
-  if (TangoHandler::getInstance()->isConnected())
-  {
-    pickingPointAndPlanePtr = mojom::VRPickingPointAndPlane::New();
-    pickingPointAndPlanePtr->point = std::vector<double>(3);
-    pickingPointAndPlanePtr->plane = std::vector<double>(4);
-    if (!TangoHandler::getInstance()->getPickingPointAndPlaneInPointCloud(x, y, &(pickingPointAndPlanePtr->point[0]), &(pickingPointAndPlanePtr->plane[0])))
-    {
-      pickingPointAndPlanePtr = nullptr;
-    }
-  }
-  return pickingPointAndPlanePtr;
-}
-
-std::vector<mojom::VRADFPtr> TangoVRDevice::GetADFs()
-{
-  std::vector<mojom::VRADFPtr> mojomADFs;
-  if (TangoHandler::getInstance()->isConnected())
-  {
-    std::vector<ADF> adfs;
-    if (TangoHandler::getInstance()->getADFs(adfs))
-    {
-      std::vector<ADF>::size_type size = adfs.size();
-      mojomADFs.resize(size);
-      for (std::vector<ADF>::size_type i = 0; i < size; i++)
-      {
-        mojomADFs[i] = mojom::VRADF::New();
-        mojomADFs[i]->uuid = adfs[i].getUUID();
-        mojomADFs[i]->name = adfs[i].getName();
-        mojomADFs[i]->creationTime = adfs[i].getCreationTime();
-      }
-    }
-  }
-  return mojomADFs;
-}
-
-void TangoVRDevice::EnableADF(const std::string& uuid)
-{
-  TangoHandler::getInstance()->enableADF(uuid);
-}
-
-void TangoVRDevice::DisableADF()
-{
-  TangoHandler::getInstance()->disableADF();
-}
-
-std::vector<mojom::VRMarkerPtr> TangoVRDevice::DetectMarkers(unsigned markerType, float markerSize)
-{
-  std::vector<mojom::VRMarkerPtr> mojomMarkers;
-  if (TangoHandler::getInstance()->isConnected())
-  {
-    TangoSupportMarkerType mt;
-    switch(markerType)
-    {
-      case 0x1:
-        mt = TANGO_MARKER_ARTAG;
-        break;
-      case 0x2:
-        mt = TANGO_MARKER_QRCODE;
-        break;
-      default:
-        VLOG(0) << "ERROR: Incorrect marker type value. Currently supported values are VRDipslay.MARKER_TYPE_AR and VRDisplay.MARKER_TYPE_QRCODE.";
-        return mojomMarkers;
-    }
-    std::vector<Marker> markers;
-    if (TangoHandler::getInstance()->detectMarkers(mt, markerSize, markers))
-    {
-      std::vector<Marker>::size_type size = markers.size();
-      mojomMarkers.resize(size);
-      for (std::vector<Marker>::size_type i = 0; i < size; i++)
-      {
-        mojomMarkers[i] = mojom::VRMarker::New();
-        mojomMarkers[i]->type = markers[i].getType();
-        mojomMarkers[i]->id = markers[i].getId();
-        mojomMarkers[i]->content = markers[i].getContent();
-        mojomMarkers[i]->position.resize(3);
-        const double* markerPosition = markers[i].getPosition(); 
-        mojomMarkers[i]->position[0] = markerPosition[0];
-        mojomMarkers[i]->position[1] = markerPosition[1];
-        mojomMarkers[i]->position[2] = markerPosition[2];
-        mojomMarkers[i]->orientation.resize(4);
-        const double* markerOrientation = markers[i].getOrientation(); 
-        mojomMarkers[i]->orientation[0] = markerOrientation[0];
-        mojomMarkers[i]->orientation[1] = markerOrientation[1];
-        mojomMarkers[i]->orientation[2] = markerOrientation[2];
-        mojomMarkers[i]->orientation[3] = markerOrientation[3];
-      }
-    }
-  }
-  return mojomMarkers;
+  std::vector<mojom::VRHitPtr> hits;
+  return hits;
+  // mojom::VRHitPtr pickingPointAndPlanePtr = nullptr;
+  // if (TangoHandler::getInstance()->isConnected())
+  // {
+  //   pickingPointAndPlanePtr = mojom::VRPickingPointAndPlane::New();
+  //   pickingPointAndPlanePtr->point = std::vector<double>(3);
+  //   pickingPointAndPlanePtr->plane = std::vector<double>(4);
+  //   if (!TangoHandler::getInstance()->getPickingPointAndPlaneInPointCloud(x, y, &(pickingPointAndPlanePtr->point[0]), &(pickingPointAndPlanePtr->plane[0])))
+  //   {
+  //     pickingPointAndPlanePtr = nullptr;
+  //   }
+  // }
+  // return pickingPointAndPlanePtr;
 }
 
 void TangoVRDevice::RequestPresent(const base::Callback<void(bool)>& callback) {

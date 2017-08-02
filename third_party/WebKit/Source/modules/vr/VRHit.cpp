@@ -2,30 +2,30 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "modules/vr/VRPickingPointAndPlane.h"
+#include "modules/vr/VRHit.h"
 
 namespace blink {
 
-VRPickingPointAndPlane::VRPickingPointAndPlane()
+VRHit::VRHit()
 {
     m_point = DOMFloat32Array::create(3);
     m_plane = DOMFloat32Array::create(4);
 }
 
-void VRPickingPointAndPlane::setPickingPointAndPlane(const device::mojom::blink::VRPickingPointAndPlanePtr& pickingPointAndPlanePtr)
+void VRHit::setHit(const device::mojom::blink::VRHitPtr& hitPtr)
 {
-    if (pickingPointAndPlanePtr.is_null())
+    if (hitPtr.is_null())
         return;
 
     for (size_t i = 0; i < 3; i++) {
-    	m_point->data()[i] = (float)pickingPointAndPlanePtr->point[i];
+    	m_point->data()[i] = (float)hitPtr->point[i];
     }
     for (size_t i = 0; i < 4; i++) {
-    	m_plane->data()[i] = (float)pickingPointAndPlanePtr->plane[i];
+    	m_plane->data()[i] = (float)hitPtr->plane[i];
     }
 }
 
-DEFINE_TRACE(VRPickingPointAndPlane)
+DEFINE_TRACE(VRHit)
 {
     visitor->trace(m_point);
     visitor->trace(m_plane);

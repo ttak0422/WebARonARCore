@@ -13,6 +13,19 @@
 
 clear; reset;
 
+# Rebuild the tango_chromium library
+echo "Rebuilding libtango.so..."
+cd android_webview/test/shell/tango/jni
+./ndkbuild.sh
+
+# Check if everything went well
+if [ $? -eq 0 ]; then
+	cd ../../../../..
+else
+	cd ../../../../..
+	exit 1
+fi	
+
 # Get the name of the current branch as it will be used to determine the out folder.
 BRANCH_NAME=$(git symbolic-ref -q HEAD)
 BRANCH_NAME=${BRANCH_NAME##refs/heads/}
@@ -50,14 +63,7 @@ if [ ! -z "$USE_GOMA" ]; then
 	echo "Ensured that goma has started!"
 fi
 
-# Rebuild the tango_chromium library
-echo "Rebuilding libtango.so..."
-cd android_webview/test/shell/tango/jni
-./ndkbuild.sh
-
 if [ $? -eq 0 ]; then
-	cd ../../../../..
-
 	# Determine the type of chromium to build
 	APK_TYPE="android_webview_apk"
 	if [ $# -eq 1 ]; then
@@ -111,6 +117,4 @@ if [ $? -eq 0 ]; then
 			fi
 		fi
 	fi
-else
-	cd ../../../../..
 fi
