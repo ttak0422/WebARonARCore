@@ -65,10 +65,13 @@ public class TangoJniNative {
         }
     };
 
-    public static boolean initialize()
+    // public static void initialize()
+    static
     {
+        System.out.println("TANGO CHROMIUM: initialize 1");
         System.loadLibrary("tango_chromium");
-        return true;
+        cacheJavaObjects(mTangoUpdateCallbackProxy);
+        System.out.println("TANGO CHROMIUM: initialize 2");
     }
 
     public static native void cacheJavaObjects(TangoUpdateCallback callbackProxy);

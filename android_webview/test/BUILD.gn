@@ -54,6 +54,8 @@ android_apk("android_webview_apk") {
 
   loadable_modules = [
     "../../third_party/tango/libtango_chromium/arm64-v8a/libtango_chromium.so",
+#    "../../third_party/tango/libtango_client_api/arm64-v8a/libtango_client_api.so",
+    "../../third_party/tango/libtango_client_api2/arm64-v8a/libtango_client_api2.so",
     "../../third_party/tango/libtango_support/arm64-v8a/libtango_support.so"  
   ]
 
@@ -109,8 +111,8 @@ shared_library("libstandalonelibwebviewchromium") {
   ldflags += [
     "-L../../third_party/tango/libtango_chromium/arm64-v8a",
     "-ltango_chromium",
-    "-L../../third_party/tango/libtango_client_api/arm64-v8a",
-    "-ltango_client_api",
+#    "-L../../third_party/tango/libtango_client_api/arm64-v8a",
+#    "-ltango_client_api",
     "-L../../third_party/tango/libtango_client_api2/arm64-v8a",
     "-ltango_client_api2",
     "-L../../third_party/tango/libtango_support/arm64-v8a",

@@ -23,7 +23,7 @@ class TangoVRDevice : public VRDevice {
   ~TangoVRDevice() override;
 
   mojom::VRDisplayInfoPtr GetVRDevice() override;
-  mojom::VRPosePtr GetPose() override;
+  mojom::VRPosePtr GetPose(float near, float far) override;
   void ResetPose() override;
   mojom::VRSeeThroughCameraPtr GetSeeThroughCamera() override;
   std::vector<mojom::VRHitPtr> HitTest(float x, float y) override;

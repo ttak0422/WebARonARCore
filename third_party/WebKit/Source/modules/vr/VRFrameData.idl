@@ -15,5 +15,7 @@
     readonly attribute Float32Array rightProjectionMatrix;
     readonly attribute Float32Array rightViewMatrix;
 
+    readonly attribute Float32Array projectionMatrix;
+
     readonly attribute VRPose pose;
 };

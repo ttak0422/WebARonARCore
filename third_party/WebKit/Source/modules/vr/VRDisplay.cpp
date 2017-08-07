@@ -189,7 +189,7 @@ void VRDisplay::updatePose() {
     if (!m_display)
       return;
     device::mojom::blink::VRPosePtr pose;
-    m_display->GetPose(&pose);
+    m_display->GetPose(m_depthNear, m_depthFar, &pose);
     m_framePose = std::move(pose);
     if (m_isPresenting)
       m_canUpdateFramePose = false;

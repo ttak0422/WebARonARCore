@@ -24,7 +24,7 @@ struct VRPose {
   // The poseIndex is a sequential ID that's incremented on each distinct
   // getPose result, it may wrap around for long sessions.
   uint32 poseIndex;
-  bool localized;
+  array<float, 16>? projectionMatrix;
 };
 
 struct VRDisplayCapabilities {
@@ -104,7 +104,7 @@ interface VRServiceClient {
 
 interface VRDisplay {
   [Sync]
-  GetPose() => (VRPose? pose);
+  GetPose(float near, float far) => (VRPose? pose);
   ResetPose();
 
   [Sync]

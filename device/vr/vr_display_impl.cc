@@ -27,13 +27,13 @@ VRDisplayImpl::~VRDisplayImpl() {
   device_->RemoveDisplay(this);
 }
 
-void VRDisplayImpl::GetPose(const GetPoseCallback& callback) {
+void VRDisplayImpl::GetPose(float near, float far, const GetPoseCallback& callback) {
   if (!device_->IsAccessAllowed(this)) {
     callback.Run(nullptr);
     return;
   }
 
-  callback.Run(device_->GetPose());
+  callback.Run(device_->GetPose(near, far));
 }
 
 void VRDisplayImpl::ResetPose() {

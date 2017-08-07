@@ -167,6 +167,14 @@ bool matrixInvert(DOMFloat32Array* outArray) {
   return true;
 };
 
+DOMFloat32Array* mojoArrayToFloat32Array(
+    const WTF::Optional<WTF::Vector<float>>& vec) {
+  if (!vec)
+    return nullptr;
+
+  return DOMFloat32Array::create(&(vec.value().front()), vec.value().size());
+}
+
 VRFrameData::VRFrameData() : m_timestamp(0.0) {
   m_leftProjectionMatrix = DOMFloat32Array::create(16);
   m_leftViewMatrix = DOMFloat32Array::create(16);
@@ -204,6 +212,8 @@ bool VRFrameData::update(const device::mojom::blink::VRPosePtr& pose,
   if (!matrixInvert(m_rightViewMatrix))
     return false;
 
+  m_projectionMatrix = mojoArrayToFloat32Array(pose->projectionMatrix);
+
   // Set the pose
   m_pose->setPose(pose);
 
@@ -215,6 +225,7 @@ DEFINE_TRACE(VRFrameData) {
   visitor->trace(m_leftViewMatrix);
   visitor->trace(m_rightProjectionMatrix);
   visitor->trace(m_rightViewMatrix);
+  visitor->trace(m_projectionMatrix);
   visitor->trace(m_pose);
 }
 

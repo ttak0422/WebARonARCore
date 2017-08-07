@@ -80,19 +80,17 @@ mojom::VRDisplayInfoPtr TangoVRDevice::GetVRDevice() {
   return device;
 }
 
-mojom::VRPosePtr TangoVRDevice::GetPose() {
+mojom::VRPosePtr TangoVRDevice::GetPose(float near, float far) {
 
   TangoPoseData tangoPoseData;
 
   mojom::VRPosePtr pose = nullptr;
-  bool isLocalized = false;
 
-  if (TangoHandler::getInstance()->isConnected() && TangoHandler::getInstance()->getPose(&tangoPoseData, &isLocalized))
+  if (TangoHandler::getInstance()->isConnected() && TangoHandler::getInstance()->getPose(&tangoPoseData))
   {
     pose = mojom::VRPose::New();
 
     pose->timestamp = base::Time::Now().ToJsTime();
-    pose->localized = isLocalized;
 
     pose->orientation.emplace(4);
     pose->position.emplace(3);
@@ -105,6 +103,10 @@ mojom::VRPosePtr TangoVRDevice::GetPose() {
     pose->position.value()[0] = tangoPoseData.translation[0]/*decomposed_transform.translate[0]*/;
     pose->position.value()[1] = tangoPoseData.translation[1]/*decomposed_transform.translate[1]*/;
     pose->position.value()[2] = tangoPoseData.translation[2]/*decomposed_transform.translate[2]*/;
+
+    pose->projectionMatrix.emplace(16);
+    // TODO: Replace near and far from values passed to this method from the JS side.
+    TangoHandler::getInstance()->getProjectionMatrix(near, far, &(pose->projectionMatrix.value()[0]));    
   }
 
   return pose;

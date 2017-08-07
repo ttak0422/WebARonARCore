@@ -59,7 +59,8 @@ public:
 
 	bool isConnected() const;
 
-	bool getPose(TangoPoseData* tangoPoseData, bool* isLocalized);
+	bool getPose(TangoPoseData* tangoPoseData);
+	bool getProjectionMatrix(float near, float far, float* projectionMatrix);
 	
 	// bool getPickingPointAndPlaneInPointCloud(float x, float y, double* point, double* plane);
 

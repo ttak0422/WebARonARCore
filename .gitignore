@@ -493,6 +493,15 @@ vs-chromium-project.txt
 /third_party/yasm/generate_files.xml
 /third_party/yasm/source/patched-yasm
 /third_party/yasm/yasm.xml
+/third_party/appurify-python
+/third_party/blimp_fonts
+/third_party/depot_tools
+/third_party/freetype
+/third_party/googletest
+/third_party/grpc
+/third_party/libprotobuf-mutator
+/third_party/libsync/src
+/third_party/minizip
 /tools/.bisect-builds-cache.json
 /tools/distcc
 /tools/gn/bin/linux

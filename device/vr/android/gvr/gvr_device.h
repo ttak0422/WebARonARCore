@@ -24,7 +24,7 @@ class GvrDevice : public VRDevice {
 
   // VRDevice
   mojom::VRDisplayInfoPtr GetVRDevice() override;
-  mojom::VRPosePtr GetPose() override;
+  mojom::VRPosePtr GetPose(float near, float far) override;
   void ResetPose() override;
 
   mojom::VRSeeThroughCameraPtr GetSeeThroughCamera() override;

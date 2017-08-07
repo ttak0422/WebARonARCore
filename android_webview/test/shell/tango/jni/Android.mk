@@ -58,6 +58,6 @@ LOCAL_C_INCLUDES := \
 LOCAL_SRC_FILES := TangoHandler.cpp \
                    TangoHandlerJNIInterface.cpp
 LOCAL_CFLAGS := -std=gnu++11 -Werror -fexceptions
-LOCAL_SHARED_LIBRARIES := tango_client_api tango_client_api2 tango_support
+LOCAL_SHARED_LIBRARIES := tango_client_api2 tango_support
 LOCAL_LDLIBS := -llog -landroid -lGLESv2 -lEGL
 include $(BUILD_SHARED_LIBRARY)

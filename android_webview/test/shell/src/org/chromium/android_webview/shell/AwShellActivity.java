@@ -504,24 +504,15 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (!TangoJniNative.initialize()) 
-        {
-            createAlertDialog(this, "Error Initializing Chromium WebAR", "This device is not currently Tango compatible. Sorry, this Chromium WebAR prototype only runs on Tango devices for now.", new DialogInterface.OnClickListener()
-            {
-                @Override
-                public void onClick(DialogInterface dialog, int which)
-                {
-                    finish();
-                }
-            }, 1, "Ok", null, null).show();
-            return;                
-        }
+        // System.out.println("TANGO CHROMIUM: onCreate 1");
+        // TangoJniNative.initialize();
+        // System.out.println("TANGO CHROMIUM: onCreate 2");
 
         requestCameraPermission();
         requestExternalStorageReadPermission();
         requestRecordAudioPermission();
         requestLocationPermission();
-        requestADFPermission();
+        // requestADFPermission();
 
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         Display display = windowManager.getDefaultDisplay();
@@ -583,10 +574,10 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
         if (!mInitialized) return;
 
         mTango = new Tango(this, new Runnable() {
-                @Override
-                public void run() {
-                    TangoJniNative.onTangoServiceConnected(mTango);
-                }
+            @Override
+            public void run() {
+                TangoJniNative.onTangoServiceConnected(mTango);
+            }
         });
     }
 
