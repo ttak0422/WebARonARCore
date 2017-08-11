@@ -416,6 +416,9 @@ typedef struct TangoImage {
 /// specific to the camera capture. It is meant to replicate
 /// some of the information provided by the Android
 /// CameraMetadata class.
+#define TANGO_NUM_COLOR_CORRECTION_GAIN_VALUES (4)
+#define TANGO_NUM_COLOR_CORRECTION_TRANSFORM_VALUES (9)
+#define TANGO_NUM_SENSOR_NEUTRAL_COLOR_POINT_VALUES (3)
 typedef struct TangoCameraMetadata {
   /// Camera timestamp in nanoseconds
   int64_t timestamp_ns;
@@ -423,6 +426,21 @@ typedef struct TangoCameraMetadata {
   int64_t frame_number;
   /// Camera exposure time in nanoseconds
   int64_t exposure_duration_ns;
+  /// Camera sensitivity ISO
+  int32_t sensitivity_iso;
+  /// Camera lense aperature
+  float lens_aperture;
+  // Will be one of the values in
+  // acamera_metadata_enum_acamera_color_correction_mode.
+  int32_t color_correction_mode;
+  // Gains applying to Bayer raw color channels for white-balance.
+  float color_correction_gains[TANGO_NUM_COLOR_CORRECTION_GAIN_VALUES];
+  // A color transform matrix to use to transform from sensor RGB
+  // color space to output linear sRGB color space.
+  float color_correction_transform[TANGO_NUM_COLOR_CORRECTION_TRANSFORM_VALUES];
+  // The estimated camera neutral color in the native sensor colorspace
+  // at the time of capture.
+  float sensor_neutral_color_point[TANGO_NUM_SENSOR_NEUTRAL_COLOR_POINT_VALUES];
 } TangoCameraMetadata;
 
 /// @deprecated Use @c TangoPointCloud instead.
@@ -592,17 +610,40 @@ typedef struct TangoEvent {
 } TangoEvent;
 
 /// @brief The TangoPlaneData struct contains a plane definition.
-/// The plane is described by an id and a TangoPoseData relative to the camera
-/// pose when obtained the plane.
 ///
 /// The coordinate system of the plane frame is defined as:
 /// The Z axis is vertical with the positive direction pointing up.
 /// The X axis and Y axis are horizontal in the plane.
-/// The positive direction of X axis points to the projection point of camera
-/// on the XY plane.
 typedef struct TangoPlaneData {
+  /// Unique id.
   int id;
+  /// Pose of plane frame relative to Start of Service frame.
   TangoPoseData pose;
+  /// 2D points of boundary polygon in counter-clockwise order. The point
+  /// coordinates are relative to the plane frame. They are 2D (x, y) because z
+  /// is always 0.
+  double* boundary_polygon;
+  /// Number of boundary points. The size of boundary_polygon is
+  /// boundary_point_num * 2 because each point has two values: x and y.
+  int boundary_point_num;
+  /// X coordinate of center point of the tightest enclosing bounding box,
+  /// relative to the plane frame.
+  double center_x;
+  /// Y coordinate of center point of the tightest enclosing bounding box,
+  /// relative to the plane frame.
+  double center_y;
+  /// Width (minor axis) of bounding box.
+  double width;
+  /// Height (major axis) of bounding box.
+  double height;
+  /// Angle (radians) from plane frame's X to width.
+  double yaw;
+  /// Timestamp of last update.
+  double timestamp;
+  /// Id of plane subsuming the current plane. -1 if the plane is not subsumed.
+  int subsumed_by;
+  /// "false" when the tracking is not reliable.
+  bool is_valid;
 } TangoPlaneData;
 
 #ifdef __cplusplus

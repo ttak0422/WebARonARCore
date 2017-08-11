@@ -15,16 +15,6 @@
 #
 
 # ==========================================================
-# tango_client_api
-# ==========================================================
-LOCAL_PATH := ../../../../../third_party/tango/libtango_client_api/arm64-v8a
-include $(CLEAR_VARS)
-LOCAL_MODULE := tango_client_api
-LOCAL_SRC_FILES := \
-	libtango_client_api.so
-include $(PREBUILT_SHARED_LIBRARY)
-
-# ==========================================================
 # tango_client_api2
 # ==========================================================
 LOCAL_PATH := ../../../../../third_party/tango/libtango_client_api2/arm64-v8a

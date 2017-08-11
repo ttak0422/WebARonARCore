@@ -22,9 +22,25 @@
 extern "C" {
 #endif
 
+void TangoService_disconnectAndUnbind();
+
 TangoErrorType TangoService_Experimental_getPlaneByUVCoord(
     int cameraId, const TangoPoseData* camera_pose, const double uvCoord[2],
     TangoPlaneData* planeData);
+
+// *planes is expected to be NULL, i.e. it is app's responsibility to free
+// *planes before passing it to the function.
+//
+// If success, *planes points to an array of TangoPlaneData, and *plane_num is
+// the size of the array.
+//
+// Memory of *planes is owned by system. App should use TangoPlaneData_free to
+// free the memory.
+TangoErrorType TangoService_Experimental_getPlanes(TangoPlaneData** planes,
+                                                   size_t* plane_num);
+
+// Helper for TangoPlaneData
+void TangoPlaneData_free(TangoPlaneData* planes, size_t plane_num);
 
 void TangoService_CacheTangoObject(JNIEnv* env, jobject jTangoObj);
 
