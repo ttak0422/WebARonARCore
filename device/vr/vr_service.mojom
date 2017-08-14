@@ -24,7 +24,6 @@ struct VRPose {
   // The poseIndex is a sequential ID that's incremented on each distinct
   // getPose result, it may wrap around for long sessions.
   uint32 poseIndex;
-  array<float, 16>? projectionMatrix;
 };
 
 struct VRDisplayCapabilities {
@@ -32,7 +31,7 @@ struct VRDisplayCapabilities {
   bool hasPosition;
   bool hasExternalDisplay;
   bool canPresent;
-  bool hasSeeThroughCamera;
+  bool hasPassThroughCamera;
 };
 
 // Information about the optical properties for an eye in a VRDisplay.
@@ -47,7 +46,7 @@ struct VRHit {
   array<float, 16> modelMatrix;
 };
 
-struct VRSeeThroughCamera {
+struct VRPassThroughCamera {
   uint32 width;
   uint32 height;
   uint32 textureWidth;
@@ -103,11 +102,11 @@ interface VRServiceClient {
 
 interface VRDisplay {
   [Sync]
-  GetPose(float near, float far) => (VRPose? pose);
+  GetPose() => (VRPose? pose);
   ResetPose();
 
   [Sync]
-  GetSeeThroughCamera() => (VRSeeThroughCamera? seeThroughCamera);
+  GetPassThroughCamera() => (VRPassThroughCamera? seeThroughCamera);
   [Sync]
   HitTest(float x, float y) => (array<VRHit> hits);
 

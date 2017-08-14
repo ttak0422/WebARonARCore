@@ -25,7 +25,7 @@ class VRDisplayCapabilities final
   bool canPresent() const { return m_canPresent; }
   unsigned maxLayers() const { return m_maxLayers; }
 
-  bool hasSeeThroughCamera() const { return m_hasSeeThroughCamera; }
+  bool hasPassThroughCamera() const { return m_hasPassThroughCamera; }
 
   void setHasOrientation(bool value) { m_hasOriention = value; }
   void setHasPosition(bool value) { m_hasPosition = value; }
@@ -33,7 +33,7 @@ class VRDisplayCapabilities final
   void setCanPresent(bool value) { m_canPresent = value; }
   void setMaxLayers(unsigned value) { m_maxLayers = value; }
 
-  void setHasSeeThroughCamera(bool value) { m_hasSeeThroughCamera = value; }
+  void setHasPassThroughCamera(bool value) { m_hasPassThroughCamera = value; }
 
   DECLARE_VIRTUAL_TRACE()
 
@@ -44,7 +44,7 @@ class VRDisplayCapabilities final
   bool m_canPresent;
   unsigned m_maxLayers;
 
-  bool m_hasSeeThroughCamera;
+  bool m_hasPassThroughCamera;
 };
 
 }  // namespace blink

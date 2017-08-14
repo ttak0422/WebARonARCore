@@ -29,8 +29,8 @@ blink_modules_sources("vr") {
     "VRStageParameters.h",
     "VRHit.cpp",
     "VRHit.h",
-    "VRSeeThroughCamera.cpp",
-    "VRSeeThroughCamera.h",
+    "VRPassThroughCamera.cpp",
+    "VRPassThroughCamera.h",
   ]
 
   deps = [

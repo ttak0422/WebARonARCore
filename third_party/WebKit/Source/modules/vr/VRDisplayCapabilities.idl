@@ -29,5 +29,5 @@
   // The maximum length of the array that VRDisplay.requestPresent will accept.
   readonly attribute unsigned long maxLayers;
 
-  readonly attribute boolean hasSeeThroughCamera;
+  readonly attribute boolean hasPassThroughCamera;
 };

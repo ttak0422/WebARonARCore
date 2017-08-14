@@ -24,7 +24,7 @@
 #include "modules/vr/VRPose.h"
 #include "modules/vr/VRStageParameters.h"
 #include "modules/vr/VRHit.h"
-#include "modules/vr/VRSeeThroughCamera.h"
+#include "modules/vr/VRPassThroughCamera.h"
 #include "modules/webgl/WebGLRenderingContextBase.h"
 #include "platform/Histogram.h"
 #include "platform/UserGestureIndicator.h"
@@ -116,7 +116,7 @@ void VRDisplay::update(const device::mojom::blink::VRDisplayInfoPtr& display) {
       display->capabilities->hasExternalDisplay);
   m_capabilities->setCanPresent(display->capabilities->canPresent);
   m_capabilities->setMaxLayers(display->capabilities->canPresent ? 1 : 0);
-  m_capabilities->setHasSeeThroughCamera(display->capabilities->hasSeeThroughCamera);
+  m_capabilities->setHasPassThroughCamera(display->capabilities->hasPassThroughCamera);
 
   // Ignore non presenting delegate
   bool isValid = display->leftEye->renderWidth > 0;
@@ -136,9 +136,9 @@ void VRDisplay::update(const device::mojom::blink::VRDisplayInfoPtr& display) {
     m_stageParameters = nullptr;
   }
 
-  if (display->capabilities->hasSeeThroughCamera) {
-    if (!m_seeThroughCamera) {
-      m_seeThroughCamera = new VRSeeThroughCamera();
+  if (display->capabilities->hasPassThroughCamera) {
+    if (!m_passThroughCamera) {
+      m_passThroughCamera = new VRPassThroughCamera();
     }
   }
 
@@ -189,7 +189,7 @@ void VRDisplay::updatePose() {
     if (!m_display)
       return;
     device::mojom::blink::VRPosePtr pose;
-    m_display->GetPose(m_depthNear, m_depthFar, &pose);
+    m_display->GetPose(&pose);
     m_framePose = std::move(pose);
     if (m_isPresenting)
       m_canUpdateFramePose = false;
@@ -224,20 +224,20 @@ HeapVector<Member<VRHit>> VRDisplay::hitTest(float x, float y) {
   return hits;
 }
 
-VRSeeThroughCamera* VRDisplay::getSeeThroughCamera()
+VRPassThroughCamera* VRDisplay::getPassThroughCamera()
 {
-  if (!m_display || !m_seeThroughCamera)
+  if (!m_display || !m_passThroughCamera)
     return nullptr;
 
-  device::mojom::blink::VRSeeThroughCameraPtr seeThroughCamera;
-  m_display->GetSeeThroughCamera(&seeThroughCamera);
-  if (seeThroughCamera.is_null()) {
+  device::mojom::blink::VRPassThroughCameraPtr passThroughCamera;
+  m_display->GetPassThroughCamera(&passThroughCamera);
+  if (passThroughCamera.is_null()) {
     return nullptr;
   }
   else {
-    m_seeThroughCamera->setSeeThroughCamera(seeThroughCamera);
+    m_passThroughCamera->setPassThroughCamera(passThroughCamera);
   }
-  return m_seeThroughCamera;
+  return m_passThroughCamera;
 }
 
 VREyeParameters* VRDisplay::getEyeParameters(const String& whichEye) {
@@ -820,7 +820,7 @@ DEFINE_TRACE(VRDisplay) {
   visitor->trace(m_renderingContext);
   visitor->trace(m_scriptedAnimationController);
   visitor->trace(m_pendingPresentResolvers);
-  visitor->trace(m_seeThroughCamera);
+  visitor->trace(m_passThroughCamera);
 }
 
 }  // namespace blink

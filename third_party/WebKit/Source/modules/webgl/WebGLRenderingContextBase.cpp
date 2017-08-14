@@ -103,7 +103,7 @@
 #include "wtf/typed_arrays/ArrayBufferContents.h"
 #include <memory>
 
-#include "modules/vr/VRSeeThroughCamera.h"
+#include "modules/vr/VRPassThroughCamera.h"
 
 namespace blink {
 
@@ -4852,7 +4852,7 @@ void WebGLRenderingContextBase::texImage2D(GLenum target,
                           0);
 }
 
-void WebGLRenderingContextBase::texImageHelperVRSeeThroughCamera(
+void WebGLRenderingContextBase::texImageHelperVRPassThroughCamera(
   TexImageFunctionID functionID,
   GLenum target, 
   GLint level, 
@@ -4864,7 +4864,7 @@ void WebGLRenderingContextBase::texImageHelperVRSeeThroughCamera(
   GLint xoffset, 
   GLint yoffset, 
   GLint zoffset, 
-  VRSeeThroughCamera* seeThroughCamera)
+  VRPassThroughCamera* seeThroughCamera)
 {
   if (m_cameraImageTextureId != 0) 
   {
@@ -4878,9 +4878,9 @@ void WebGLRenderingContextBase::texImage2D(GLenum target,
                                            GLint internalformat,
                                            GLenum format, 
                                            GLenum type, 
-                                           VRSeeThroughCamera* seeThroughCamera)
+                                           VRPassThroughCamera* seeThroughCamera)
 {
-  texImageHelperVRSeeThroughCamera(TexImage2D, target, level, internalformat, 0, format, type, 1, 0, 0, 0, seeThroughCamera);
+  texImageHelperVRPassThroughCamera(TexImage2D, target, level, internalformat, 0, format, type, 1, 0, 0, 0, seeThroughCamera);
 }
 
 void WebGLRenderingContextBase::texImageHelperHTMLImageElement(

@@ -271,7 +271,7 @@ modules_idl_files =
                     "vr/VRFrameData.idl",
                     "vr/VRPose.idl",
                     "vr/VRStageParameters.idl",
-                    "vr/VRSeeThroughCamera.idl",
+                    "vr/VRPassThroughCamera.idl",
                     "vr/VRHit.idl",
                     "webaudio/AnalyserNode.idl",
                     "webaudio/AudioBuffer.idl",

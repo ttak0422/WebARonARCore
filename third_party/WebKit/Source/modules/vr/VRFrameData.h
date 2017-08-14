@@ -35,9 +35,6 @@ class VRFrameData final : public GarbageCollected<VRFrameData>,
     return m_rightProjectionMatrix;
   }
   DOMFloat32Array* rightViewMatrix() const { return m_rightViewMatrix; }
-  DOMFloat32Array* projectionMatrix() const {
-    return m_projectionMatrix;
-  }
   VRPose* pose() const { return m_pose; }
 
   // Populate a the VRFrameData with a pose and the necessary eye parameters.
@@ -57,7 +54,6 @@ class VRFrameData final : public GarbageCollected<VRFrameData>,
   Member<DOMFloat32Array> m_leftViewMatrix;
   Member<DOMFloat32Array> m_rightProjectionMatrix;
   Member<DOMFloat32Array> m_rightViewMatrix;
-  Member<DOMFloat32Array> m_projectionMatrix;
   Member<VRPose> m_pose;
 };
 

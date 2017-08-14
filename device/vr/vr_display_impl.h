@@ -29,11 +29,11 @@ class VRDisplayImpl : public mojom::VRDisplay {
   friend class VRDisplayImplTest;
   friend class VRServiceImpl;
 
-  void GetPose(float near, float far, const GetPoseCallback& callback) override;
+  void GetPose(const GetPoseCallback& callback) override;
   void ResetPose() override;
 
   void HitTest(float x, float y, const HitTestCallback& callback) override;
-  void GetSeeThroughCamera(const GetSeeThroughCameraCallback& callback) override;
+  void GetPassThroughCamera(const GetPassThroughCameraCallback& callback) override;
 
   void RequestPresent(bool secure_origin,
                       const RequestPresentCallback& callback) override;

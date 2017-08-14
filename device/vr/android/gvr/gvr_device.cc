@@ -42,7 +42,7 @@ mojom::VRDisplayInfoPtr GvrDevice::GetVRDevice() {
   device->capabilities->hasPosition = false;
   device->capabilities->hasExternalDisplay = false;
   device->capabilities->canPresent = true;
-  device->capabilities->hasSeeThroughCamera = false;
+  device->capabilities->hasPassThroughCamera = false;
 
   device->leftEye = mojom::VREyeParameters::New();
   device->rightEye = mojom::VREyeParameters::New();
@@ -151,7 +151,7 @@ mojom::VRDisplayInfoPtr GvrDevice::GetVRDevice() {
   return device;
 }
 
-mojom::VRPosePtr GvrDevice::GetPose(float near, float far) {
+mojom::VRPosePtr GvrDevice::GetPose() {
   TRACE_EVENT0("input", "GvrDevice::GetSensorState");
 
   mojom::VRPosePtr pose = mojom::VRPose::New();
@@ -222,7 +222,7 @@ void GvrDevice::ResetPose() {
     gvr_api->RecenterTracking();
 }
 
-mojom::VRSeeThroughCameraPtr GvrDevice::GetSeeThroughCamera()
+mojom::VRPassThroughCameraPtr GvrDevice::GetPassThroughCamera()
 {
   return nullptr;
 }

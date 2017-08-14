@@ -27,13 +27,13 @@ VRDisplayImpl::~VRDisplayImpl() {
   device_->RemoveDisplay(this);
 }
 
-void VRDisplayImpl::GetPose(float near, float far, const GetPoseCallback& callback) {
+void VRDisplayImpl::GetPose(const GetPoseCallback& callback) {
   if (!device_->IsAccessAllowed(this)) {
     callback.Run(nullptr);
     return;
   }
 
-  callback.Run(device_->GetPose(near, far));
+  callback.Run(device_->GetPose());
 }
 
 void VRDisplayImpl::ResetPose() {
@@ -53,13 +53,13 @@ void VRDisplayImpl::HitTest(float x, float y, const HitTestCallback& callback)
   callback.Run(device_->HitTest(x, y));
 }
 
-void VRDisplayImpl::GetSeeThroughCamera(const GetSeeThroughCameraCallback& callback) {
+void VRDisplayImpl::GetPassThroughCamera(const GetPassThroughCameraCallback& callback) {
   if (!device_->IsAccessAllowed(this)) {
     callback.Run(nullptr);
     return;
   }
 
-  callback.Run(device_->GetSeeThroughCamera());
+  callback.Run(device_->GetPassThroughCamera());
 }
 
 void VRDisplayImpl::RequestPresent(bool secure_origin,

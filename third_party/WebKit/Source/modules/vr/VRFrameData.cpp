@@ -212,8 +212,6 @@ bool VRFrameData::update(const device::mojom::blink::VRPosePtr& pose,
   if (!matrixInvert(m_rightViewMatrix))
     return false;
 
-  m_projectionMatrix = mojoArrayToFloat32Array(pose->projectionMatrix);
-
   // Set the pose
   m_pose->setPose(pose);
 
@@ -225,7 +223,6 @@ DEFINE_TRACE(VRFrameData) {
   visitor->trace(m_leftViewMatrix);
   visitor->trace(m_rightProjectionMatrix);
   visitor->trace(m_rightViewMatrix);
-  visitor->trace(m_projectionMatrix);
   visitor->trace(m_pose);
 }
 

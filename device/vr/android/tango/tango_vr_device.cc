@@ -38,50 +38,90 @@ mojom::VRDisplayInfoPtr TangoVRDevice::GetVRDevice() {
   device->capabilities->hasPosition = true;
   device->capabilities->hasExternalDisplay = false;
   device->capabilities->canPresent = false;
-  device->capabilities->hasSeeThroughCamera = true;
+  device->capabilities->hasPassThroughCamera = true;
 
   device->leftEye = mojom::VREyeParameters::New();
   device->rightEye = mojom::VREyeParameters::New();
   mojom::VREyeParametersPtr& left_eye = device->leftEye;
   mojom::VREyeParametersPtr& right_eye = device->rightEye;
-
   left_eye->fieldOfView = mojom::VRFieldOfView::New();
-  left_eye->fieldOfView->upDegrees = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*fov[0]*/;
-  left_eye->fieldOfView->downDegrees = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*fov[1]*/;
-  left_eye->fieldOfView->leftDegrees = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*fov[2]*/;
-  left_eye->fieldOfView->rightDegrees = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*fov[3]*/;
-
-  // Cardboard devices always assume a mirrored FOV, so this is just the left
-  // eye FOV with the left and right degrees swapped.
   right_eye->fieldOfView = mojom::VRFieldOfView::New();
-  right_eye->fieldOfView->upDegrees = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*fov[0]*/;
-  right_eye->fieldOfView->downDegrees = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*fov[1]*/;
-  right_eye->fieldOfView->leftDegrees = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*fov[3]*/;
-  right_eye->fieldOfView->rightDegrees = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*fov[2]*/;
 
   left_eye->offset.resize(3);
+  right_eye->offset.resize(3);
+
+  TangoHandler* tangoHandler = TangoHandler::getInstance();
+  if (!tangoHandler->isConnected()) {
+    // We may not be able to get an instance of TangoHandler right away, so
+    // stub in some data till we have one.
+    left_eye->fieldOfView->upDegrees = 45;
+    left_eye->fieldOfView->downDegrees = 45;
+    left_eye->fieldOfView->leftDegrees = 45;
+    left_eye->fieldOfView->rightDegrees = 45;
+    right_eye->fieldOfView->upDegrees = 45;
+    right_eye->fieldOfView->downDegrees = 45;
+    right_eye->fieldOfView->leftDegrees = 45;
+    right_eye->fieldOfView->rightDegrees = 45;
+
+    left_eye->offset[0] = -0.0;
+    left_eye->offset[1] = -0.0;
+    left_eye->offset[2] = -0.03;
+
+    right_eye->offset[0] = 0.0;
+    right_eye->offset[1] = 0.0;
+    right_eye->offset[2] = 0.03;
+
+    left_eye->renderWidth = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*screen_size[0]*/ / 2.0;
+    left_eye->renderHeight = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*screen_size[1]*/;
+
+    right_eye->renderWidth = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*screen_size[0]*/ / 2.0;
+    right_eye->renderHeight = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*screen_size[1]*/;
+
+    return device;
+  }
+
+  uint32_t iw = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API;
+  uint32_t ih = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API;
+  double fx = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API;
+  double fy = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API;
+  double cx = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API;
+  double cy = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API;
+
+  tangoHandler->getCameraImageSize(&iw, &ih);
+  tangoHandler->getCameraFocalLength(&fx, &fy);
+  tangoHandler->getCameraPoint(&cx, &cy);
+
+  float vDegrees = ((atan(ih / fy) * 2.0) * 180.0 / M_PI) / 2.0;
+  float hDegrees = ((atan(iw / fx) * 2.0) * 180.0 / M_PI) / 2.0;
+
+  left_eye->fieldOfView->upDegrees = vDegrees;
+  left_eye->fieldOfView->downDegrees = vDegrees;
+  left_eye->fieldOfView->leftDegrees = hDegrees;
+  left_eye->fieldOfView->rightDegrees = hDegrees;
+
+  right_eye->fieldOfView->upDegrees = vDegrees;
+  right_eye->fieldOfView->downDegrees = vDegrees;
+  right_eye->fieldOfView->leftDegrees = hDegrees;
+  right_eye->fieldOfView->rightDegrees = hDegrees;
+
   left_eye->offset[0] = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*ipd*/ * -0.5f;
   left_eye->offset[1] = 0.0f;
   left_eye->offset[2] = 0.0f;
 
-  right_eye->offset.resize(3);
   right_eye->offset[0] = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*ipd*/ * 0.5f;
   right_eye->offset[1] = 0.0f;
   right_eye->offset[2] = 0.0f;
 
-  left_eye->renderWidth = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*screen_size[0]*/ / 2.0;
-  left_eye->renderHeight = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*screen_size[1]*/;
+  left_eye->renderWidth = iw;
+  left_eye->renderHeight = ih;
 
-  right_eye->renderWidth = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*screen_size[0]*/ / 2.0;
-  right_eye->renderHeight = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*screen_size[1]*/;
-
-  // device->stageParameters = mojom::VRStageParameters::New();
-  // device->stageParameters->standingTransform = mojo::Array<float>::New(16);
+  right_eye->renderWidth = iw;
+  right_eye->renderHeight = ih;
 
   return device;
 }
 
-mojom::VRPosePtr TangoVRDevice::GetPose(float near, float far) {
+mojom::VRPosePtr TangoVRDevice::GetPose() {
 
   TangoPoseData tangoPoseData;
 
@@ -104,10 +144,6 @@ mojom::VRPosePtr TangoVRDevice::GetPose(float near, float far) {
     pose->position.value()[0] = tangoPoseData.translation[0]/*decomposed_transform.translate[0]*/;
     pose->position.value()[1] = tangoPoseData.translation[1]/*decomposed_transform.translate[1]*/;
     pose->position.value()[2] = tangoPoseData.translation[2]/*decomposed_transform.translate[2]*/;
-
-    pose->projectionMatrix.emplace(16);
-    // TODO: Replace near and far from values passed to this method from the JS side.
-    TangoHandler::getInstance()->getProjectionMatrix(near, far, &(pose->projectionMatrix.value()[0]));    
   }
 
   return pose;
@@ -117,13 +153,13 @@ void TangoVRDevice::ResetPose() {
   // TODO
 }
 
-mojom::VRSeeThroughCameraPtr TangoVRDevice::GetSeeThroughCamera()
+mojom::VRPassThroughCameraPtr TangoVRDevice::GetPassThroughCamera()
 {
   TangoHandler* tangoHandler = TangoHandler::getInstance();
-  mojom::VRSeeThroughCameraPtr seeThroughCameraPtr = nullptr;
+  mojom::VRPassThroughCameraPtr seeThroughCameraPtr = nullptr;
   if (tangoHandler->isConnected())
   {
-    seeThroughCameraPtr = mojom::VRSeeThroughCamera::New();
+    seeThroughCameraPtr = mojom::VRPassThroughCamera::New();
     tangoHandler->getCameraImageSize(&(seeThroughCameraPtr->width), &(seeThroughCameraPtr->height));
     tangoHandler->getCameraImageTextureSize(&(seeThroughCameraPtr->textureWidth), &(seeThroughCameraPtr->textureHeight));
     tangoHandler->getCameraFocalLength(&(seeThroughCameraPtr->focalLengthX), &(seeThroughCameraPtr->focalLengthY));

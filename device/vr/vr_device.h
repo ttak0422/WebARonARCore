@@ -24,9 +24,9 @@ class DEVICE_VR_EXPORT VRDevice {
   unsigned int id() const { return id_; }
 
   virtual mojom::VRDisplayInfoPtr GetVRDevice() = 0;
-  virtual mojom::VRPosePtr GetPose(float near, float far) = 0;
+  virtual mojom::VRPosePtr GetPose() = 0;
   virtual void ResetPose() = 0;
-  virtual mojom::VRSeeThroughCameraPtr GetSeeThroughCamera() = 0;
+  virtual mojom::VRPassThroughCameraPtr GetPassThroughCamera() = 0;
   virtual std::vector<mojom::VRHitPtr> HitTest(float x, float y) = 0;
 
   virtual void RequestPresent(const base::Callback<void(bool)>& callback) = 0;

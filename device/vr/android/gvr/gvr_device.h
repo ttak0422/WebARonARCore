@@ -24,10 +24,10 @@ class GvrDevice : public VRDevice {
 
   // VRDevice
   mojom::VRDisplayInfoPtr GetVRDevice() override;
-  mojom::VRPosePtr GetPose(float near, float far) override;
+  mojom::VRPosePtr GetPose() override;
   void ResetPose() override;
 
-  mojom::VRSeeThroughCameraPtr GetSeeThroughCamera() override;
+  mojom::VRPassThroughCameraPtr GetPassThroughCamera() override;
   std::vector<mojom::VRHitPtr> HitTest(float x, float y) override;
 
   void RequestPresent(const base::Callback<void(bool)>& callback) override;

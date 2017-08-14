@@ -35,7 +35,7 @@ enum VREye {
     [DeprecateAs=VRDeprecatedGetPose] VRPose getPose();
     void resetPose();
     sequence<VRHit> hitTest(float x, float y);
-    VRSeeThroughCamera getSeeThroughCamera();
+    VRPassThroughCamera getPassThroughCamera();
 
     attribute double depthNear;
     attribute double depthFar;

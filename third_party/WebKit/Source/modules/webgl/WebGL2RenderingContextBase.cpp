@@ -1306,7 +1306,7 @@ void WebGL2RenderingContextBase::texImage2D(GLenum target,
                                             GLint internalformat, 
                                             GLenum format, 
                                             GLenum type, 
-                                            VRSeeThroughCamera* seeThroughCamera)
+                                            VRPassThroughCamera* seeThroughCamera)
 {
   WebGLRenderingContextBase::texImage2D(target, level, internalformat, format, 
                                         type, seeThroughCamera);

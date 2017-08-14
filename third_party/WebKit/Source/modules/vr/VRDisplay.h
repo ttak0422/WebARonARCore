@@ -36,7 +36,7 @@ class VRFrameData;
 class VRStageParameters;
 class VRPose;
 class VRHit;
-class VRSeeThroughCamera;
+class VRPassThroughCamera;
 
 class WebGLRenderingContextBase;
 
@@ -67,7 +67,7 @@ class VRDisplay final : public EventTargetWithInlineData,
   void resetPose();
 
   HeapVector<Member<VRHit>> hitTest(float x, float y);
-  VRSeeThroughCamera* getSeeThroughCamera();
+  VRPassThroughCamera* getPassThroughCamera();
 
   double depthNear() const { return m_depthNear; }
   double depthFar() const { return m_depthFar; }
@@ -153,7 +153,7 @@ class VRDisplay final : public EventTargetWithInlineData,
   Member<VREyeParameters> m_eyeParametersRight;
   device::mojom::blink::VRPosePtr m_framePose;
 
-  Member<VRSeeThroughCamera> m_seeThroughCamera;
+  Member<VRPassThroughCamera> m_passThroughCamera;
   
   VRLayer m_layer;
   double m_depthNear;

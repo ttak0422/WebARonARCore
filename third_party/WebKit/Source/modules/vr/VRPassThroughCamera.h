@@ -2,18 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef VRSeeThroughCamera_h
-#define VRSeeThroughCamera_h
+#ifndef VRPassThroughCamera_h
+#define VRPassThroughCamera_h
 
 #include "bindings/core/v8/ScriptWrappable.h"
 #include "device/vr/vr_service.mojom-blink.h"
 
 namespace blink {
 
-class VRSeeThroughCamera final : public GarbageCollected<VRSeeThroughCamera>, public ScriptWrappable {
+class VRPassThroughCamera final : public GarbageCollected<VRPassThroughCamera>, public ScriptWrappable {
     DEFINE_WRAPPERTYPEINFO();
 public:
-    VRSeeThroughCamera();
+    VRPassThroughCamera();
 
     unsigned long width() const;
     unsigned long height() const;
@@ -25,7 +25,7 @@ public:
     double pointY() const;
     long orientation();
 
-    void setSeeThroughCamera(const device::mojom::blink::VRSeeThroughCameraPtr&);
+    void setPassThroughCamera(const device::mojom::blink::VRPassThroughCameraPtr&);
 
     DECLARE_VIRTUAL_TRACE()
 private:
@@ -42,4 +42,4 @@ private:
 
 } // namespace blink
 
-#endif // VRSeeThroughCamera_h
+#endif // VRPassThroughCamera_h

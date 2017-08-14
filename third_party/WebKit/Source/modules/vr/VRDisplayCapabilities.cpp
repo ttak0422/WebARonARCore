@@ -11,7 +11,7 @@ VRDisplayCapabilities::VRDisplayCapabilities()
       m_hasPosition(false),
       m_hasExternalDisplay(false),
       m_canPresent(false),
-      m_hasSeeThroughCamera(false) {}
+      m_hasPassThroughCamera(false) {}
 
 DEFINE_TRACE(VRDisplayCapabilities) {}
 

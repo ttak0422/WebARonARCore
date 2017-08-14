@@ -4,7 +4,7 @@
 
 [
 	RuntimeEnabled=WebVR
-] interface VRSeeThroughCamera {
+] interface VRPassThroughCamera {
 	readonly attribute unsigned long width;
 	readonly attribute unsigned long height;
 	readonly attribute unsigned long textureWidth;

@@ -635,7 +635,7 @@ typedef unrestricted float GLclampf;
         GLenum format, GLenum type, ImageBitmap bitmap);
     void texImage2D(
         GLenum target, GLint level, GLint internalformat,
-        GLenum format, GLenum type, VRSeeThroughCamera? seeThroughCamera);
+        GLenum format, GLenum type, VRPassThroughCamera? seeThroughCamera);
 
     void texSubImage2D(
         GLenum target, GLint level, GLint xoffset, GLint yoffset,
