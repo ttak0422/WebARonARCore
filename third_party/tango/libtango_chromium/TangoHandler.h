@@ -38,6 +38,12 @@
 
 namespace tango_chromium {
 
+class Hit
+{
+public:
+	float modelMatrix[16];
+};
+
 // TangoHandler provides functionality to communicate with the Tango Service.
 class TangoHandler {
 public:
@@ -61,6 +67,7 @@ public:
 
 	bool getPose(TangoPoseData* tangoPoseData);
 	bool getProjectionMatrix(float near, float far, float* projectionMatrix);
+	bool hitTest(float x, float y, std::vector<Hit>& hits);
 	
 	// bool getPickingPointAndPlaneInPointCloud(float x, float y, double* point, double* plane);
 

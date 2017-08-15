@@ -5,6 +5,5 @@
 [
 	RuntimeEnabled=WebVR
 ] interface VRHit {
-    readonly attribute Float32Array? point;
-    readonly attribute Float32Array? plane;
+    readonly attribute Float32Array? modelMatrix;
 };

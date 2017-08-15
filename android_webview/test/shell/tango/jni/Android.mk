@@ -44,7 +44,8 @@ LOCAL_C_INCLUDES := \
 	. \
 	../../../../../third_party/tango/libtango_client_api \
 	../../../../../third_party/tango/libtango_client_api2 \
-	../../../../../third_party/tango/libtango_support
+	../../../../../third_party/tango/libtango_support \
+	../../../../../third_party/glm
 LOCAL_SRC_FILES := TangoHandler.cpp \
                    TangoHandlerJNIInterface.cpp
 LOCAL_CFLAGS := -std=gnu++11 -Werror -fexceptions

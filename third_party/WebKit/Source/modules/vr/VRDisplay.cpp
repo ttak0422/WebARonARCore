@@ -205,22 +205,23 @@ void VRDisplay::resetPose() {
 
 HeapVector<Member<VRHit>> VRDisplay::hitTest(float x, float y) {
   HeapVector<Member<VRHit>> hits;
-  // hits.resize(N);
-  // hits[i] = X;
+
+  if (!m_display)
+    return hits;
+
+  Vector<device::mojom::blink::VRHitPtr> hitPtrs;
+  m_display->HitTest(x, y, &hitPtrs);
+  if (hitPtrs.size() > 0) 
+  {
+    hits.resize(hitPtrs.size());
+    for (size_t i = 0; i < hitPtrs.size(); i++)
+    {
+      VRHit* hit = new VRHit();
+      hit->setHit(hitPtrs[i]);
+      hits[i] = hit;
+    }
+  }
   return hits;
-
-  // if (!m_display || !m_pickingPointAndPlane)
-  //   return nullptr;
-
-  // device::mojom::blink::VRPickingPointAndPlanePtr mojoPickingPointAndPlane;
-  // m_display->GetPickingPointAndPlaneInPointCloud(x, y, &mojoPickingPointAndPlane);
-  // if (mojoPickingPointAndPlane.is_null()) {
-  //   return nullptr;
-  // }
-  // else {
-  //   m_pickingPointAndPlane->setPickingPointAndPlane(mojoPickingPointAndPlane);
-  // }
-  // return m_pickingPointAndPlane;
 }
 
 VRSeeThroughCamera* VRDisplay::getSeeThroughCamera()

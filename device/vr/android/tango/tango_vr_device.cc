@@ -14,6 +14,7 @@
 
 using base::android::AttachCurrentThread;
 using tango_chromium::TangoHandler;
+using tango_chromium::Hit;
 
 namespace device {
 
@@ -134,20 +135,25 @@ mojom::VRSeeThroughCameraPtr TangoVRDevice::GetSeeThroughCamera()
 
 std::vector<mojom::VRHitPtr> TangoVRDevice::HitTest(float x, float y)
 {
-  std::vector<mojom::VRHitPtr> hits;
-  return hits;
-  // mojom::VRHitPtr pickingPointAndPlanePtr = nullptr;
-  // if (TangoHandler::getInstance()->isConnected())
-  // {
-  //   pickingPointAndPlanePtr = mojom::VRPickingPointAndPlane::New();
-  //   pickingPointAndPlanePtr->point = std::vector<double>(3);
-  //   pickingPointAndPlanePtr->plane = std::vector<double>(4);
-  //   if (!TangoHandler::getInstance()->getPickingPointAndPlaneInPointCloud(x, y, &(pickingPointAndPlanePtr->point[0]), &(pickingPointAndPlanePtr->plane[0])))
-  //   {
-  //     pickingPointAndPlanePtr = nullptr;
-  //   }
-  // }
-  // return pickingPointAndPlanePtr;
+  std::vector<mojom::VRHitPtr> mojomHits;
+  if (TangoHandler::getInstance()->isConnected())
+  {
+    std::vector<Hit> hits;
+    if (TangoHandler::getInstance()->hitTest(x, y, hits) && hits.size() > 0)
+    {
+      std::vector<Hit>::size_type size = hits.size();
+      mojomHits.resize(size);
+      for (std::vector<Hit>::size_type i = 0; i < size; i++)
+      {
+        mojomHits[i] = mojom::VRHit::New();
+        for (int j = 0; j < 16; j++)
+        {
+          mojomHits[i]->modelMatrix[j] = hits[i].modelMatrix[j];
+        }
+      }
+    }
+  }
+  return mojomHits;
 }
 
 void TangoVRDevice::RequestPresent(const base::Callback<void(bool)>& callback) {

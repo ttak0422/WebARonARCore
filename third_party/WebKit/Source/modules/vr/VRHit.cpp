@@ -8,8 +8,7 @@ namespace blink {
 
 VRHit::VRHit()
 {
-    m_point = DOMFloat32Array::create(3);
-    m_plane = DOMFloat32Array::create(4);
+    m_modelMatrix = DOMFloat32Array::create(16);
 }
 
 void VRHit::setHit(const device::mojom::blink::VRHitPtr& hitPtr)
@@ -17,18 +16,14 @@ void VRHit::setHit(const device::mojom::blink::VRHitPtr& hitPtr)
     if (hitPtr.is_null())
         return;
 
-    for (size_t i = 0; i < 3; i++) {
-    	m_point->data()[i] = (float)hitPtr->point[i];
-    }
-    for (size_t i = 0; i < 4; i++) {
-    	m_plane->data()[i] = (float)hitPtr->plane[i];
+    for (size_t i = 0; i < 16; i++) {
+    	m_modelMatrix->data()[i] = (float)hitPtr->modelMatrix[i];
     }
 }
 
 DEFINE_TRACE(VRHit)
 {
-    visitor->trace(m_point);
-    visitor->trace(m_plane);
+    visitor->trace(m_modelMatrix);
 }
 
 } // namespace blink

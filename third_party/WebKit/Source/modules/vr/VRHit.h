@@ -18,16 +18,14 @@ class VRHit final : public GarbageCollected<VRHit>, public ScriptWrappable {
 public:
     VRHit();
     
-    DOMFloat32Array* point() const { return m_point; }
-    DOMFloat32Array* plane() const { return m_plane; }
+    DOMFloat32Array* modelMatrix() const { return m_modelMatrix; }
 
     void setHit(const device::mojom::blink::VRHitPtr&);
 
     DECLARE_VIRTUAL_TRACE();
 
 private:
-    Member<DOMFloat32Array> m_point;
-    Member<DOMFloat32Array> m_plane;
+    Member<DOMFloat32Array> m_modelMatrix;
 };
 
 } // namespace blink

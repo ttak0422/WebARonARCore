@@ -30,6 +30,8 @@
 
 #include <thread>
 
+#include "glm.hpp"
+
 namespace {
 
 const int kVersionStringLength = 128;
@@ -474,6 +476,7 @@ bool TangoHandler::getPose(TangoPoseData* tangoPoseData)
     {
       LOGE("TangoHandler::getPose: Failed to get the pose.");
     }
+
   }
   return result;
 }
@@ -511,55 +514,26 @@ bool TangoHandler::getProjectionMatrix(float near, float far, float* projectionM
   return true;  
 }
 
+bool TangoHandler::hitTest(float x, float y, std::vector<Hit>& hits)
+{
+  bool result = false;
 
-// bool TangoHandler::getPickingPointAndPlaneInPointCloud(float x, float y, double* point, double* plane)
-// {
-//   bool result = false;
+  if (connected)
+  {
 
-//   if (connected)
-//   {
-//     double timestamp = hasLastTangoImageBufferTimestampChangedLately() ? lastTangoImageBufferTimestamp : 0.0;
+    TangoPlaneData* planes = 0;
+    size_t numberOfPlanes = 0;
+    if (TangoService_Experimental_getPlanes(&planes, &numberOfPlanes) == TANGO_SUCCESS)
+    {
+      LOGE("TangoHandler::getPose: %lu planes detected.", numberOfPlanes);
+      TangoPlaneData_free(planes, numberOfPlanes);
+    }
 
-//     TangoPoseData tangoPose;
-//     if (TangoSupport_calculateRelativePose(
-//       latestTangoPointCloud->timestamp, 
-//       TANGO_COORDINATE_FRAME_CAMERA_DEPTH,
-//       timestamp,
-//       TANGO_COORDINATE_FRAME_CAMERA_COLOR,
-//       &tangoPose) != TANGO_SUCCESS)
-//     {
-//       LOGE("%s: could not calculate relative pose", __func__);
-//       return result;
-//     }
-//     float uv[] = {x, y};
-//     double identity_translation[3] = {0.0, 0.0, 0.0};
-//     double identity_orientation[4] = {0.0, 0.0, 0.0, 1.0};
-//     if (TangoSupport_fitPlaneModelNearPoint(
-//       latestTangoPointCloud, identity_translation, identity_orientation,
-//       uv, static_cast<TangoSupportRotation>(activityOrientation),
-//       tangoPose.translation,
-//       tangoPose.orientation,
-//       point, plane) != TANGO_SUCCESS)
-//     {
-//       LOGE("%s: could not calculate picking point and plane", __func__);
-//       return result;
-//     }
-//     if (depthCameraMatrixTransform.status_code != TANGO_POSE_VALID) {
-//       LOGE("TangoHandler::getPickingPointAndPlaneInPointCloud: Could not find a valid matrix transform at "
-//       "time %lf for the depth camera.", latestTangoPointCloud->timestamp);
-//       return result;
-//     }
-//     multiplyMatrixWithVector(depthCameraMatrixTransform.matrix, point, point);
+    result = true;
+  }
 
-//   //  LOGI("Before: %f, %f, %f, %f", plane[0], plane[1], plane[2], plane[3]);
-//     transformPlane(plane, depthCameraMatrixTransform.matrix, plane);
-//   //  LOGI("After: %f, %f, %f, %f", plane[0], plane[1], plane[2], plane[3]);
-
-//     result = true;
-//   }
-
-//   return result;
-// }
+  return result;
+}
 
 bool TangoHandler::getCameraImageSize(uint32_t* width, uint32_t* height)
 {

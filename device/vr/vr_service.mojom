@@ -44,8 +44,7 @@ struct VREyeParameters {
 };
 
 struct VRHit {
-  array<double, 3> point;
-  array<double, 4> plane;
+  array<float, 16> modelMatrix;
 };
 
 struct VRSeeThroughCamera {
