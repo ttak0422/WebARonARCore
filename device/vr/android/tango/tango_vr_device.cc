@@ -16,6 +16,8 @@ using base::android::AttachCurrentThread;
 using tango_chromium::TangoHandler;
 using tango_chromium::Hit;
 
+const float RAD_2_DEG = 180.0 / M_PI;
+
 namespace device {
 
 TangoVRDevice::TangoVRDevice(TangoVRDeviceProvider* provider)
@@ -91,8 +93,8 @@ mojom::VRDisplayInfoPtr TangoVRDevice::GetVRDevice() {
   tangoHandler->getCameraFocalLength(&fx, &fy);
   tangoHandler->getCameraPoint(&cx, &cy);
 
-  float vDegrees = ((atan(ih / fy) * 2.0) * 180.0 / M_PI) / 2.0;
-  float hDegrees = ((atan(iw / fx) * 2.0) * 180.0 / M_PI) / 2.0;
+  float vDegrees = atan(ih / (2.0 * fy)) * RAD_2_DEG;
+  float hDegrees = atan(iw / (2.0 * fx)) * RAD_2_DEG;
 
   left_eye->fieldOfView->upDegrees = vDegrees;
   left_eye->fieldOfView->downDegrees = vDegrees;
@@ -118,16 +120,33 @@ mojom::VRDisplayInfoPtr TangoVRDevice::GetVRDevice() {
   right_eye->renderWidth = iw;
   right_eye->renderHeight = ih;
 
+  // Store the orientation values so we can check in future GetPose()
+  // calls if we need to update camera intrinsics and regenerate the
+  // VRDeviceInfoPtr
+  lastSensorOrientation = tangoHandler->getSensorOrientation();
+  lastActivityOrientation = tangoHandler->getActivityOrientation();
+
   return device;
 }
 
 mojom::VRPosePtr TangoVRDevice::GetPose() {
 
+  // Check to see if orientation has changed, and if so, fire
+  // an OnChanged() so that the VRFieldOfView can be updated,
+  // with the up-to-date VRDeviceInfoPtr sent to WebKit for correct
+  // projection matrix calculations.
+  TangoHandler* tangoHandler = TangoHandler::getInstance();
+  if (tangoHandler->isConnected() &&
+      (lastSensorOrientation  != tangoHandler->getSensorOrientation() ||
+      lastActivityOrientation != tangoHandler->getActivityOrientation())) {
+    VRDevice::OnChanged();
+  }
+
   TangoPoseData tangoPoseData;
 
   mojom::VRPosePtr pose = nullptr;
 
-  if (TangoHandler::getInstance()->isConnected() && TangoHandler::getInstance()->getPose(&tangoPoseData))
+  if (tangoHandler->isConnected() && tangoHandler->getPose(&tangoPoseData))
   {
     pose = mojom::VRPose::New();
 
