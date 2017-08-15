@@ -201,6 +201,7 @@ std::vector<mojom::VRHitPtr> TangoVRDevice::HitTest(float x, float y)
       for (std::vector<Hit>::size_type i = 0; i < size; i++)
       {
         mojomHits[i] = mojom::VRHit::New();
+        mojomHits[i]->modelMatrix.resize(16);
         for (int j = 0; j < 16; j++)
         {
           mojomHits[i]->modelMatrix[j] = hits[i].modelMatrix[j];

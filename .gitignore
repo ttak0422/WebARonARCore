@@ -152,6 +152,7 @@ vs-chromium-project.txt
 /chrome/test/data/perf/private/
 /chrome/test/data/perf/third_party/
 /chrome/test/data/plugin/
+/chrome/test/data/vr/
 /chrome/test/data/webrtc/resources
 /chrome/test/media_router/internal
 /chrome/tools/memory
@@ -460,6 +461,7 @@ vs-chromium-project.txt
 /third_party/swiftshader/
 /third_party/syzygy
 /third_party/syzygy/binaries
+/third_party/tango/libtango_chromium/arm64-v8a/libtango_chromium.so
 /third_party/tsan/
 /third_party/ub-uiautomator/lib
 /third_party/usb_ids

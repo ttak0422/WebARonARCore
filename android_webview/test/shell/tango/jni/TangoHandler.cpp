@@ -31,6 +31,11 @@
 #include <thread>
 
 #include "glm.hpp"
+#include "gtc/type_ptr.hpp"
+#include "gtx/transform.hpp"
+#include "gtx/quaternion.hpp"
+
+using namespace glm;
 
 namespace {
 
@@ -226,6 +231,82 @@ void matrixProjection(float width, float height,
           matrix);
 }
 
+mat4 SS_T_GL;
+mat4 SS_T_GL_INV;
+
+mat4 mat4FromTranslationOrientation(double *translation, double *orientation) {
+  vec3 translationV3 = vec3((float)translation[0], 
+  (float)translation[1], (float)translation[2]);
+  quat orientationQ = quat((float)orientation[0], (float)orientation[1],
+  (float)orientation[2], (float)orientation[3]);
+
+  mat4 m = mat4();
+  float* out;
+  out = value_ptr(m);
+  float x = (float)orientation[0];
+  float y = (float)orientation[1];
+  float z = (float)orientation[2];
+  float w = (float)orientation[3];
+
+  float x2 = x + x;
+  float y2 = y + y;
+  float z2 = z + z;
+  float xx = x * x2;
+  float xy = x * y2;
+  float xz = x * z2;
+  float yy = y * y2;
+  float yz = y * z2;
+  float zz = z * z2;
+  float wx = w * x2;
+  float wy = w * y2;
+  float wz = w * z2;
+
+  out[0] = 1 - (yy + zz);
+  out[1] = xy + wz;
+  out[2] = xz - wy;
+  out[3] = 0;
+  out[4] = xy - wz;
+  out[5] = 1 - (xx + zz);
+  out[6] = yz + wx;
+  out[7] = 0;
+  out[8] = xz + wy;
+  out[9] = yz - wx;
+  out[10] = 1 - (xx + yy);
+  out[11] = 0;
+  out[12] = (float)translation[0];
+  out[13] = (float)translation[1];
+  out[14] = (float)translation[2];
+  out[15] = 1;
+
+  return m;
+};
+
+float rayIntersectsPlane(
+  vec3 planeNormal, vec3 planePosition, vec3 rayOrigin, vec3 rayDirection) {
+  float denom = glm::dot(planeNormal, rayDirection);
+  vec3 rayToPlane = planePosition - rayOrigin;
+  return glm::dot(rayToPlane, planeNormal) / denom;
+}
+
+vec3 transformVec3ByMat4(vec3 v, mat4 m4) {
+  float* m;
+  m = value_ptr(m4);
+
+  float x = v[0];
+  float y = v[1];
+  float z = v[2];
+  float w = m[3] * x + m[7] * y + m[11] * z + m[15];
+
+  if (w == 0) {
+    w = 1.0f;
+  }
+
+  return vec3(
+    (m[0] * x + m[4] * y + m[8] * z + m[12]) / w,
+    (m[1] * x + m[5] * y + m[9] * z + m[13]) / w,
+    (m[2] * x + m[6] * y + m[10] * z + m[14]) / w);
+}
+
 } // End anonymous namespace
 
 namespace tango_chromium {
@@ -256,6 +337,10 @@ TangoHandler::TangoHandler(): connected(false)
   , cameraImageTextureHeight(0)
   , textureIdConnected(false)
 {
+  // This matrix comes from the tango team to transform from tango-space to GL-space.
+  float ss_t_gl[16] = {1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1};
+  SS_T_GL = make_mat4(ss_t_gl);
+  SS_T_GL_INV = inverse(SS_T_GL);
 }
 
 TangoHandler::~TangoHandler()
@@ -505,16 +590,114 @@ bool TangoHandler::hitTest(float x, float y, std::vector<Hit>& hits)
 
   if (connected)
   {
-
     TangoPlaneData* planes = 0;
     size_t numberOfPlanes = 0;
     if (TangoService_Experimental_getPlanes(&planes, &numberOfPlanes) == TANGO_SUCCESS)
     {
-      LOGE("TangoHandler::getPose: %lu planes detected.", numberOfPlanes);
+      if (numberOfPlanes == 0) {
+        return result;
+      }
+
+      // Set the projection matrix.
+      float* fM;
+      mat4 projectionMatrix;
+      fM = value_ptr(projectionMatrix);
+      getProjectionMatrix(0.01, 10000, fM);
+
+      // Set the model view matrix.
+      TangoPoseData poseData;
+      getPose(&poseData);
+      mat4 viewMatrix = mat4FromTranslationOrientation(
+          poseData.translation, poseData.orientation);
+      viewMatrix = inverse(viewMatrix);
+
+      // Combine the projection and model view matrices.
+      mat4 projViewMatrix = projectionMatrix * viewMatrix;
+
+      // Invert the combined matrix because we need to go from screen -> world.
+      projViewMatrix = inverse(projViewMatrix);
+
+      // Create a ray in screen-space for the hit test.
+      vec3 rayStart = vec3((2 * x) - 1, (2 * y) - 1, 0);
+      vec3 rayEnd   = vec3((2 * x) - 1, (2 * y) - 1, 1);
+
+      // Transform the ray into world-space.
+      vec3 worldRayOrigin = transformVec3ByMat4(rayStart, projViewMatrix);
+      vec3 worldRayDirection = transformVec3ByMat4(rayEnd, projViewMatrix);
+      worldRayDirection -= worldRayOrigin;
+      worldRayDirection = normalize(worldRayDirection);
+
+      // Check each plane for intersections.
+      for (int i = 0; i < numberOfPlanes; i++) {
+        TangoPlaneData planeData = planes[i];
+        TangoPoseData planePose = planeData.pose;
+
+        // Get the plane transform matrix.
+        mat4 planeMatrix = mat4FromTranslationOrientation(
+            planePose.translation, planePose.orientation);
+        
+        // Plane is in the tango coordinates, so transform into GL coordinate space.
+        planeMatrix = SS_T_GL_INV * planeMatrix * SS_T_GL;
+
+        LOGE("Plane Pose Translation: (%f, %f, %f)", 
+            planePose.translation[0], planePose.translation[1], planePose.translation[2]);
+
+        // Get the plane center in world-space.
+        vec3 planeCenter = vec3(planeData.center_x, 0, planeData.center_y);
+        vec3 planePosition = transformVec3ByMat4(planeCenter, planeMatrix);
+        LOGE("Plane Position: (%f,%f,%f)", planePosition.x, planePosition.y, planePosition.z);
+
+        // Assume all planes are oriented horizontally.
+        vec3 planeNormal = vec3(0, 1, 0);
+        
+        // Check if the ray intersects the plane.
+        float t = rayIntersectsPlane(planeNormal, planePosition, worldRayOrigin, worldRayDirection);
+        
+        // If t < 0, there is no intersection.
+        if (t < 0) {
+          continue;
+        }
+
+        // Calculate the intersection point.
+        vec3 planeIntersection = worldRayOrigin + (worldRayDirection * t);
+
+        // Convert the intersection into plane-space.
+        mat4 planeMatrixInv = inverse(planeMatrix);
+        vec3 planeIntersectionLocal = transformVec3ByMat4(planeIntersection, planeMatrixInv);
+
+        // Check if the intersection is outside of the extent of the plane.
+        // TODO: use the actual polygon instead of the rough bounding box!
+        if (abs(planeIntersectionLocal.x - planeData.center_x) > planeData.width) {
+          continue;
+        }
+        if (abs(planeIntersectionLocal.z - planeData.center_y) > planeData.height) {
+          continue;
+        }
+
+        mat4 hitMatrix = translate(mat4(1.0f), planeIntersection);
+        fM = value_ptr(hitMatrix);
+        Hit hit;
+        for (int j = 0; j < 16; j++) {
+          hit.modelMatrix[j] = fM[j];
+        }
+        hits.push_back(hit);
+      }
+
+      auto sortFunc = [worldRayOrigin] (Hit a, Hit b) {
+        vec3 vA = vec3(a.modelMatrix[12], a.modelMatrix[13], a.modelMatrix[14]);
+        float dA = glm::dot(vA, worldRayOrigin);
+
+        vec3 vB = vec3(b.modelMatrix[12], b.modelMatrix[13], b.modelMatrix[14]);
+        float dB = glm::dot(vB, worldRayOrigin);
+        return dA < dB;
+      };
+
+      std::sort(hits.begin(), hits.end(), sortFunc);
+
       TangoPlaneData_free(planes, numberOfPlanes);
     }
 
-    result = true;
+    result = hits.size() > 0;
   }
 
   return result;
@@ -544,6 +727,7 @@ bool TangoHandler::updateCameraIntrinsics()
     return false;
   }
 
+  /*
   LOGE("TangoHandler::updateCameraIntrinsics, success. fx: %f, fy: %f, width: %d, height: %d, cx: %f, cy: %f",
     tangoCameraIntrinsics.fx,
     tangoCameraIntrinsics.fy,
@@ -551,7 +735,7 @@ bool TangoHandler::updateCameraIntrinsics()
     tangoCameraIntrinsics.height,
     tangoCameraIntrinsics.cx,
     tangoCameraIntrinsics.cy);
-
+  */
 
   // Always subtract the height of the address bar since we cannot
   // get rid of it
