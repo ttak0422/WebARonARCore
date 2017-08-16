@@ -39,6 +39,8 @@ TangoErrorType TangoService_Experimental_getPlaneByUVCoord(
 TangoErrorType TangoService_Experimental_getPlanes(TangoPlaneData** planes,
                                                    size_t* plane_num);
 
+TangoErrorType TangoService_isSupported(bool* isSupported);
+
 // Helper for TangoPlaneData
 void TangoPlaneData_free(TangoPlaneData* planes, size_t plane_num);
 
@@ -59,6 +61,15 @@ void TangoService_JavaCallback_OnTextureAvailable(int cameraId);
 void TangoService_JavaCallback_OnImageAvailable(JNIEnv* env, int cameraId,
                                                 jobject jTangoImage,
                                                 jobject jTangoCameraMetadata);
+
+// Lighting information
+TangoErrorType TangoService_getPixelIntensity(uint8_t* yuvImage, int width,
+                                              int height, int rowStride,
+                                              float* out_float);
+
+TangoErrorType TangoService_getLuminance(int64_t exposureDurationNs,
+                                         int sensitivityIso, float lensAperture,
+                                         float* out_float);
 
 #ifdef __cplusplus
 }

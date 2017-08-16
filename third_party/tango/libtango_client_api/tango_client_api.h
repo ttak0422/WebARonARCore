@@ -216,6 +216,20 @@ typedef enum {
   TANGO_RUNTIME_RECORDING_STOP = 2
 } TangoRuntimeRecordingControl_Experimental;
 
+/// Experimental API only, subject to change.
+/// Runtime control of plane detection.
+typedef enum {
+  /// Specifies that the plane detection should not change in this call to
+  /// runtime config.
+  TANGO_RUNTIME_PLANE_DETECTION_NO_CHANGE = 0,
+  /// Start plane detection.  Has no effect if plane detection has already
+  /// been started.
+  TANGO_RUNTIME_PLANE_DETECTION_START = 1,
+  /// Stop plane detection.  Has no effect if plane detection is not currently
+  /// started.
+  TANGO_RUNTIME_PLANE_DETECTION_STOP = 2
+} TangoRuntimePlaneDetectionControl_Experimental;
+
 /**@} */
 
 /// @defgroup Types Project Tango Defined Types
