@@ -68,10 +68,8 @@ public class TangoJniNative {
     // public static void initialize()
     static
     {
-        System.out.println("TANGO CHROMIUM: initialize 1");
         System.loadLibrary("tango_chromium");
         cacheJavaObjects(mTangoUpdateCallbackProxy);
-        System.out.println("TANGO CHROMIUM: initialize 2");
     }
 
     public static native void cacheJavaObjects(TangoUpdateCallback callbackProxy);
@@ -108,5 +106,7 @@ public class TangoJniNative {
 
     public static native void onImageAvailableCallback(
         TangoImage image, TangoCameraMetadata metadata, int cameraId);
+
+    public static native void resetPose();
 
 }

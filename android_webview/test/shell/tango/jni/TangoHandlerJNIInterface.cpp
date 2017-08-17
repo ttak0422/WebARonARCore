@@ -79,6 +79,12 @@ Java_org_chromium_android_1webview_shell_TangoJniNative_onTangoEventCallback(
   TangoService_JavaCallback_OnTangoEvent(env, event);
 }
 
+JNIEXPORT void JNICALL
+Java_org_chromium_android_1webview_shell_TangoJniNative_resetPose(
+    JNIEnv* env, jobject, jobject event) {
+  TangoHandler::getInstance()->resetPose();
+}
+
 #ifdef __cplusplus
 }
 #endif

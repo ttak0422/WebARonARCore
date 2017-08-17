@@ -94,15 +94,18 @@ import com.google.atap.tangoservice.Tango;
 public class AwShellActivity extends Activity implements OnRequestPermissionsResultCallback {
     private static final String TAG = "cr.AwShellActivity";
     private static final String PREFERENCES_NAME = "AwShellPrefs";
-    private static final String INITIAL_URL = "about:blank";
+    private static final String INITIAL_URL = "http://arx.mono.hm";
     private static final String LAST_USED_URL_PREFERENCE_NAME = "url";
-    private static final int CAMERA_PERMISSION_ID = 1;
     private static final int ADF_PERMISSION_ID = 2;
-    private static final int READ_EXTERNAL_STORAGE_PERMISSION_ID = 3;
-    private static final int RECORD_AUDIO_PERMISSION_ID = 4;
-    private static final int LOCATION_PERMISSION_ID = 5;
-    private static final int MODIFY_AUDIO_SETTINGS_PERMISSION_ID = 6;
     private static final int CAMERA_ID = 0;
+    private static final int MULTIPLE_PERMISSIONS_REQUEST_CODE = 12345;
+    private static final String[] PERMISSIONS = new String[] {
+        Manifest.permission.CAMERA
+        , Manifest.permission.READ_EXTERNAL_STORAGE
+        , Manifest.permission.RECORD_AUDIO
+        , Manifest.permission.MODIFY_AUDIO_SETTINGS
+        , Manifest.permission.ACCESS_COARSE_LOCATION
+    };
     private AwBrowserContext mBrowserContext;
     private AwDevToolsServer mDevToolsServer;
     private AwTestContainerView mAwTestContainerView;
@@ -113,7 +116,10 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
     private ImageButton mNextButton;
     private ImageButton mQRCodeButton;
     private boolean mInitialized = false;
+    private boolean mAllPermissionsGranted = false;
+    private boolean mResumed = false;
     private Tango mTango = null;
+    private String mStartupUrl = null;
 
     private class SpeechRecognition implements RecognitionListener
     {
@@ -357,126 +363,34 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
         }
     }       
 
-    private void requestCameraPermission() 
-    {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) 
+    private void requestPermissions() {
+        String permissionsString = "";
+        for (int i = 0; i < PERMISSIONS.length; i++)
         {
-            // Should we show an explanation?
-            // if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) 
+            permissionsString += PERMISSIONS[i];
+        }
+
+        if (ContextCompat.checkSelfPermission(this,
+               permissionsString)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // if (ActivityCompat.shouldShowRequestPermissionRationale
+            //         (this, Manifest.permission.READ_EXTERNAL_STORAGE) ||
+            //         ActivityCompat.shouldShowRequestPermissionRationale
+            //                 (this, Manifest.permission.CAMERA)) 
             // {
-
-            //     // Show an expanation to the user *asynchronously* -- don't block
-            //     // this thread waiting for the user's response! After the user
-            //     // sees the explanation, try again to request the permission.
-
             // } 
             // else 
             {
-
-                // No explanation needed, we can request the permission.
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.CAMERA},
-                        CAMERA_PERMISSION_ID);
+                requestPermissions(PERMISSIONS, MULTIPLE_PERMISSIONS_REQUEST_CODE);
             }
-        }
-    }    
-
-    private void requestExternalStorageReadPermission() 
-    {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) 
+        } 
+        else 
         {
-            // Should we show an explanation?
-            // if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) 
-            // {
-
-            //     // Show an expanation to the user *asynchronously* -- don't block
-            //     // this thread waiting for the user's response! After the user
-            //     // sees the explanation, try again to request the permission.
-
-            // } 
-            // else 
-            {
-
-                // No explanation needed, we can request the permission.
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        READ_EXTERNAL_STORAGE_PERMISSION_ID);
-            }
+            mAllPermissionsGranted = true;
+            tryToConnectWithTango();
         }
-    }    
-
-    private void requestRecordAudioPermission() 
-    {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) 
-        {
-            // Should we show an explanation?
-            // if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) 
-            // {
-
-            //     // Show an expanation to the user *asynchronously* -- don't block
-            //     // this thread waiting for the user's response! After the user
-            //     // sees the explanation, try again to request the permission.
-
-            // } 
-            // else 
-            {
-
-                // No explanation needed, we can request the permission.
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.RECORD_AUDIO},
-                        RECORD_AUDIO_PERMISSION_ID);
-            }
-        }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.MODIFY_AUDIO_SETTINGS) != PackageManager.PERMISSION_GRANTED) 
-        {
-            // Should we show an explanation?
-            // if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.MODIFY_AUDIO_SETTINGS)) 
-            // {
-
-            //     // Show an expanation to the user *asynchronously* -- don't block
-            //     // this thread waiting for the user's response! After the user
-            //     // sees the explanation, try again to request the permission.
-
-            // } 
-            // else 
-            {
-
-                // No explanation needed, we can request the permission.
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.MODIFY_AUDIO_SETTINGS},
-                        MODIFY_AUDIO_SETTINGS_PERMISSION_ID);
-            }
-        }
-    }    
-
-    private void requestLocationPermission() 
-    {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) 
-        {
-            // Should we show an explanation?
-            // if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) 
-            // {
-
-            //     // Show an expanation to the user *asynchronously* -- don't block
-            //     // this thread waiting for the user's response! After the user
-            //     // sees the explanation, try again to request the permission.
-
-            // } 
-            // else 
-            {
-
-                // No explanation needed, we can request the permission.
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                        LOCATION_PERMISSION_ID);
-            }
-        }
-    }    
+    }
 
     private void requestADFPermission()
     {
@@ -490,13 +404,18 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
     }
 
    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == CAMERA_PERMISSION_ID) {
-            // Received permission result for camera permission.est.");
-            // Check if the only required permission has been granted
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            } else {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) 
+    {
+        System.out.println("onRequestPermissionsResult: " + requestCode + ", " + grantResults.length);
+        if (requestCode == MULTIPLE_PERMISSIONS_REQUEST_CODE) 
+        {
+            boolean allPermissionsGranted = true;
+            for (int i = 0; allPermissionsGranted && i < grantResults.length; i++)
+            {
+                allPermissionsGranted &= grantResults[i] == PackageManager.PERMISSION_GRANTED;
             }
+            mAllPermissionsGranted = allPermissionsGranted;
+            tryToConnectWithTango();
         }
     }
 
@@ -504,14 +423,9 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // System.out.println("TANGO CHROMIUM: onCreate 1");
         // TangoJniNative.initialize();
-        // System.out.println("TANGO CHROMIUM: onCreate 2");
 
-        requestCameraPermission();
-        requestExternalStorageReadPermission();
-        requestRecordAudioPermission();
-        requestLocationPermission();
+        requestPermissions();
         // requestADFPermission();
 
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
@@ -554,16 +468,29 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
 
         mAwTestContainerView.getAwContents().addJavascriptInterface(new SpeechRecognition(), SpeechRecognition.JS_INTERFACE_INSTANCE_NAME);
 
-        String startupUrl = getUrlFromIntent(getIntent());
-        if (TextUtils.isEmpty(startupUrl)) {
-            startupUrl = getPreferences(Activity.MODE_PRIVATE).getString(LAST_USED_URL_PREFERENCE_NAME, INITIAL_URL);
+        mStartupUrl = getUrlFromIntent(getIntent());
+        if (TextUtils.isEmpty(mStartupUrl)) {
+            mStartupUrl = getPreferences(Activity.MODE_PRIVATE).getString(LAST_USED_URL_PREFERENCE_NAME, INITIAL_URL);
         }
 
-        mAwTestContainerView.getAwContents().loadUrl(startupUrl);
-        AwContents.setShouldDownloadFavicons();
-        mUrlTextView.setText(startupUrl);
-
         mInitialized = true;
+    }
+
+    private void tryToConnectWithTango()
+    {
+        if (mInitialized && mResumed && mAllPermissionsGranted)
+        {
+            mTango = new Tango(this, new Runnable() {
+                @Override
+                public void run() {
+                    TangoJniNative.onTangoServiceConnected(mTango);
+                }
+            });
+            // Now we can finally load the URL
+            mAwTestContainerView.getAwContents().loadUrl(mStartupUrl);
+            AwContents.setShouldDownloadFavicons();
+            mUrlTextView.setText(mStartupUrl);
+        }
     }
 
     @Override
@@ -573,12 +500,8 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
 
         if (!mInitialized) return;
 
-        mTango = new Tango(this, new Runnable() {
-            @Override
-            public void run() {
-                TangoJniNative.onTangoServiceConnected(mTango);
-            }
-        });
+        mResumed = true;
+        tryToConnectWithTango();
     }
 
     @Override
@@ -588,8 +511,12 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
 
         if (!mInitialized) return;
 
-        // Disconnect from Tango Service, release all the resources that the app is holding from Tango Service.
-        TangoJniNative.onPause();
+        mResumed = false;
+
+        if (mTango != null) 
+        {
+            TangoJniNative.onPause();
+        }
     }
 
     @Override
@@ -696,6 +623,7 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
                     mUrlTextView.setText(url);
                     saveStringToPreferences(LAST_USED_URL_PREFERENCE_NAME, url);
                 }
+                TangoJniNative.resetPose();
             }
 
             @Override
@@ -732,26 +660,22 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin,
                     GeolocationPermissions.Callback callback) {
-                System.out.println("WebAR: onGeolocationPermissionsShowPrompt");
                 callback.invoke(origin, true, true);
                 // callback.invoke(origin, false, false);
             }
 
             @Override
             public void onGeolocationPermissionsHidePrompt() {
-                System.out.println("WebAR: onGeolocationPermissionsHidePrompt");
             }
 
             @Override
             public void onPermissionRequest(AwPermissionRequest awPermissionRequest) {
-                System.out.println("WebAR: onPermissionRequest");
                 // awPermissionRequest.deny();
                 awPermissionRequest.grant();
             }
 
             @Override
             public void onPermissionRequestCanceled(AwPermissionRequest awPermissionRequest) {
-                System.out.println("WebAR: onPermissionRequestCanceled");
             }
         };
 

@@ -150,7 +150,7 @@ mojom::VRPosePtr TangoVRDevice::GetPose() {
 }
 
 void TangoVRDevice::ResetPose() {
-  // TODO
+  TangoHandler::getInstance()->resetPose();
 }
 
 mojom::VRPassThroughCameraPtr TangoVRDevice::GetPassThroughCamera()

@@ -103,6 +103,7 @@ if [ $? -eq 0 ]; then
 			NINJA_RESULT=$?
 		fi
 		if [ $NINJA_RESULT -eq 0 ]; then
+			# adb uninstall org.chromium.android_webview.shell
 			echo "Built!"
 			echo "Installing $APK_TYPE on Android device..."
 			adb install -r "out/$BRANCH_NAME/apks/$APK_FILE_NAME.apk"

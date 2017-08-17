@@ -264,11 +264,6 @@ TangoHandler::~TangoHandler()
 
 void TangoHandler::onCreate(JNIEnv* env, jobject activity, int activityOrientation, int sensorOrientation)
 {
-  // Check the installed version of the TangoCore.  If it is too old, then
-  // it will not support the most up to date features.
-  int version = 0;
-  TangoErrorType result;
-
   this->activityOrientation = activityOrientation;
   this->sensorOrientation = sensorOrientation;
 }
@@ -277,19 +272,13 @@ void TangoHandler::onTangoServiceConnected(JNIEnv* env, jobject tango)
 {
   TangoService_CacheTangoObject(env, tango);
 
-  LOGE("TangoHandler::onTangoServiceConnected 1");
-
   connect();
-
-  LOGE("TangoHandler::onTangoServiceConnected 2");
 }
 
 
 void TangoHandler::connect()
 {
   TangoErrorType result;
-
-  LOGE("TangoHandler::connect 1");
 
   // TANGO_CONFIG_DEFAULT is enabling Motion Tracking and disabling Depth
   // Perception.
@@ -299,8 +288,6 @@ void TangoHandler::connect()
     LOGE("TangoHandler::connect, TangoService_getConfig error.");
     std::exit (EXIT_SUCCESS);
   }
-
-  LOGE("TangoHandler::connect 2");
 
   // Set auto-recovery for motion tracking as requested by the user.
   result = TangoConfig_setBool(tangoConfig, "config_enable_auto_recovery", true);
@@ -533,6 +520,11 @@ bool TangoHandler::hitTest(float x, float y, std::vector<Hit>& hits)
   }
 
   return result;
+}
+
+void TangoHandler::resetPose()
+{
+  TangoService_resetMotionTracking();
 }
 
 bool TangoHandler::getCameraImageSize(uint32_t* width, uint32_t* height)
