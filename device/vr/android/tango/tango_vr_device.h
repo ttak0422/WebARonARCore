@@ -36,9 +36,11 @@ class TangoVRDevice : public VRDevice {
                          mojom::VRLayerBoundsPtr right_bounds) override;
 
  private:
-  TangoCoordinateFramePair tangoCoordinateFramePair;  
+  TangoCoordinateFramePair tangoCoordinateFramePair;
   TangoVRDeviceProvider* tangoVRDeviceProvider;
 
+  int lastSensorOrientation;
+  int lastActivityOrientation;
   DISALLOW_COPY_AND_ASSIGN(TangoVRDevice);
 };
 

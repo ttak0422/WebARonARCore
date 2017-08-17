@@ -52,8 +52,8 @@ public:
 
 	TangoHandler();
 
-	// TangoHandler(const TangoHandler& other) = delete;
-	// TangoHandler& operator=(const TangoHandler& other) = delete;
+	TangoHandler(const TangoHandler& other) = delete;
+	TangoHandler& operator=(const TangoHandler& other) = delete;
 
 	~TangoHandler();
 
@@ -69,9 +69,8 @@ public:
 	bool getProjectionMatrix(float near, float far, float* projectionMatrix);
 	bool hitTest(float x, float y, std::vector<Hit>& hits);
 	void resetPose();
-	
-	// bool getPickingPointAndPlaneInPointCloud(float x, float y, double* point, double* plane);
 
+	bool updateCameraIntrinsics();
 	bool getCameraImageSize(uint32_t* width, uint32_t* height);
 	bool getCameraImageTextureSize(uint32_t* width, uint32_t* height);
 	bool getCameraFocalLength(double* focalLengthX, double* focalLengthY);
@@ -79,6 +78,7 @@ public:
 	bool updateCameraImageIntoTexture(uint32_t textureId);
 
 	int getSensorOrientation() const;
+	int getActivityOrientation() const;
 
 private:
 	void connect();

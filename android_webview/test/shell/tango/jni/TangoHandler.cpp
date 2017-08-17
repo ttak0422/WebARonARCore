@@ -38,6 +38,8 @@ const int kVersionStringLength = 128;
 // The minimum Tango Core version required from this application.
 const int kTangoCoreMinimumVersion = 9377;
 
+const float ANDROID_WEBVIEW_ADDRESS_BAR_HEIGHT = 125;
+
 void onTextureAvailable(void* context, TangoCameraId tangoCameraId)
 {
   // Do nothing for now.
@@ -172,11 +174,11 @@ inline void transformPlane(const double* p, const float* m, double* pr)
   pr[2] = normal[2];
 }
 
-void matrixFrustum(float const & left, 
-             float const & right, 
-             float const & bottom, 
-             float const & top, 
-             float const & near, 
+void matrixFrustum(float const & left,
+             float const & right,
+             float const & bottom,
+             float const & top,
+             float const & near,
              float const & far,
              float* matrix)
 {
@@ -208,7 +210,7 @@ void matrixProjection(float width, float height,
                       float fx, float fy,
                       float cx, float cy,
                       float near, float far,
-                      float* matrix) 
+                      float* matrix)
 {
   const float xscale = near / fx;
   const float yscale = near / fy;
@@ -395,22 +397,22 @@ void TangoHandler::connect()
     std::exit(EXIT_SUCCESS);
   }
 
-  // By default, use the camera width and height retrieved from the tango camera intrinsics.
-  cameraImageWidth = cameraImageTextureWidth = tangoCameraIntrinsics.width;
-  cameraImageHeight = cameraImageTextureHeight = tangoCameraIntrinsics.height;
-
   // Initialize TangoSupport context.
   TangoSupport_initialize(TangoService_getPoseAtTime,
                           TangoService_getCameraIntrinsics);
 
   connected = true;
+
+  // Update camera intrinsics after connection which will take into account
+  // device rotation
+  this->updateCameraIntrinsics();
 }
 
 void TangoHandler::disconnect()
 {
   TangoService_disconnect();
 
-  cameraImageWidth = cameraImageHeight = 
+  cameraImageWidth = cameraImageHeight =
     cameraImageTextureWidth = cameraImageTextureHeight = 0;
 
   textureIdConnected = false;
@@ -425,11 +427,14 @@ void TangoHandler::onPause()
 
 void TangoHandler::onDeviceRotationChanged(int activityOrientation, int sensorOrientation)
 {
+  LOGE("TangoHandler::onDeviceRotationChanged; activityOrientation=%d, sensorOrientation=%d",
+    activityOrientation, sensorOrientation);
   this->activityOrientation = activityOrientation;
   this->sensorOrientation = sensorOrientation;
+  this->updateCameraIntrinsics();
 }
 
-void TangoHandler::onTangoEventAvailable(const TangoEvent* event) 
+void TangoHandler::onTangoEventAvailable(const TangoEvent* event)
 {
 }
 
@@ -438,7 +443,7 @@ bool TangoHandler::isConnected() const
   return connected;
 }
 
-bool TangoHandler::getPose(TangoPoseData* tangoPoseData) 
+bool TangoHandler::getPose(TangoPoseData* tangoPoseData)
 {
   bool result = connected;
   if (connected)
@@ -459,7 +464,7 @@ bool TangoHandler::getPose(TangoPoseData* tangoPoseData)
       TANGO_COORDINATE_FRAME_CAMERA_COLOR, TANGO_SUPPORT_ENGINE_OPENGL,
       TANGO_SUPPORT_ENGINE_OPENGL,
       static_cast<TangoSupport_Rotation>(activityOrientation), tangoPoseData) == TANGO_SUCCESS;
-    if (!result) 
+    if (!result)
     {
       LOGE("TangoHandler::getPose: Failed to get the pose.");
     }
@@ -470,20 +475,13 @@ bool TangoHandler::getPose(TangoPoseData* tangoPoseData)
 
 bool TangoHandler::getProjectionMatrix(float near, float far, float* projectionMatrix)
 {
-  // memset(projectionMatrix, 0, sizeof(float) * 16);
-  // projectionMatrix[0] = projectionMatrix[5] = projectionMatrix[10] = projectionMatrix[15] = 1;
-
   if (!connected) return false;
 
-  int result = TangoSupport_getCameraIntrinsicsBasedOnDisplayRotation(
-      TANGO_CAMERA_COLOR, static_cast<TangoSupport_Rotation>(activityOrientation),
-      &tangoCameraIntrinsics);
+  bool result = this->updateCameraIntrinsics();
 
-  if (result != TANGO_SUCCESS) {
+  if (!result) {
     LOGE(
-        "TangoHandler::getProjectionMatrix, failed to get camera intrinsics "
-        "with error code: %d",
-        result);
+      "TangoHandler::getProjectionMatrix, failed to get camera intrinsics");
     return false;
   }
 
@@ -495,10 +493,10 @@ bool TangoHandler::getProjectionMatrix(float near, float far, float* projectionM
   float cy = static_cast<float>(tangoCameraIntrinsics.cy);
 
   matrixProjection(
-      image_width, image_height, fx, fy, cx, cy, near,
-      far, projectionMatrix);
+    image_width, image_height, fx, fy, cx, cy, near,
+    far, projectionMatrix);
 
-  return true;  
+  return true;
 }
 
 bool TangoHandler::hitTest(float x, float y, std::vector<Hit>& hits)
@@ -525,6 +523,45 @@ bool TangoHandler::hitTest(float x, float y, std::vector<Hit>& hits)
 void TangoHandler::resetPose()
 {
   TangoService_resetMotionTracking();
+}
+
+bool TangoHandler::updateCameraIntrinsics()
+{
+  if (!connected) {
+    LOGE("TangoHandler::updateCameraIntrinsics, is not connected.");
+    return false;
+  }
+
+  int result = TangoSupport_getCameraIntrinsicsBasedOnDisplayRotation(
+      TANGO_CAMERA_COLOR, static_cast<TangoSupport_Rotation>(activityOrientation),
+      &tangoCameraIntrinsics);
+
+  if (result != TANGO_SUCCESS) {
+    LOGE(
+        "TangoHandler::updateCameraIntrinsics, failed to get camera intrinsics "
+        "with error code: %d",
+        result);
+    return false;
+  }
+
+  LOGE("TangoHandler::updateCameraIntrinsics, success. fx: %f, fy: %f, width: %d, height: %d, cx: %f, cy: %f",
+    tangoCameraIntrinsics.fx,
+    tangoCameraIntrinsics.fy,
+    tangoCameraIntrinsics.width,
+    tangoCameraIntrinsics.height,
+    tangoCameraIntrinsics.cx,
+    tangoCameraIntrinsics.cy);
+
+
+  // Always subtract the height of the address bar since we cannot
+  // get rid of it
+  tangoCameraIntrinsics.height -= ANDROID_WEBVIEW_ADDRESS_BAR_HEIGHT;
+
+  // Update the stored values for width and height
+  cameraImageWidth = cameraImageTextureWidth = tangoCameraIntrinsics.width;
+  cameraImageHeight = cameraImageTextureHeight = tangoCameraIntrinsics.height;
+
+  return true;
 }
 
 bool TangoHandler::getCameraImageSize(uint32_t* width, uint32_t* height)
@@ -570,7 +607,7 @@ bool TangoHandler::updateCameraImageIntoTexture(uint32_t textureId)
   if (!textureIdConnected)
   {
       TangoErrorType result = TangoService_connectTextureId(TANGO_CAMERA_COLOR, textureId, nullptr, nullptr);
-      if (result != TANGO_SUCCESS) 
+      if (result != TANGO_SUCCESS)
       {
       LOGE("TangoHandler::updateCameraImageIntoTexture: Failed to connect the texture id with error code: %d", result);
       return false;
@@ -580,7 +617,7 @@ bool TangoHandler::updateCameraImageIntoTexture(uint32_t textureId)
 
   TangoErrorType result = TangoService_updateTextureExternalOes(TANGO_CAMERA_COLOR, textureId, &lastTangoImageBufferTimestamp);
 
-  std::time(&lastTangoImagebufferTimestampTime);  
+  std::time(&lastTangoImagebufferTimestampTime);
 
   // LOGI("JUDAX: TangoHandler::updateCameraImageIntoTexture lastTangoImageBufferTimestamp = %lf", lastTangoImageBufferTimestamp);
 
@@ -590,6 +627,11 @@ bool TangoHandler::updateCameraImageIntoTexture(uint32_t textureId)
 int TangoHandler::getSensorOrientation() const
 {
   return sensorOrientation;
+}
+
+int TangoHandler::getActivityOrientation() const
+{
+  return activityOrientation;
 }
 
 bool TangoHandler::hasLastTangoImageBufferTimestampChangedLately()
