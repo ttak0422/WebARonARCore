@@ -67,11 +67,11 @@ mojom::VRDisplayInfoPtr TangoVRDevice::GetVRDevice() {
 
     left_eye->offset[0] = -0.0;
     left_eye->offset[1] = -0.0;
-    left_eye->offset[2] = -0.03;
+    left_eye->offset[2] = -0.0;
 
     right_eye->offset[0] = 0.0;
     right_eye->offset[1] = 0.0;
-    right_eye->offset[2] = 0.03;
+    right_eye->offset[2] = 0.0;
 
     left_eye->renderWidth = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*screen_size[0]*/ / 2.0;
     left_eye->renderHeight = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*screen_size[1]*/;
@@ -106,11 +106,11 @@ mojom::VRDisplayInfoPtr TangoVRDevice::GetVRDevice() {
   right_eye->fieldOfView->leftDegrees = hDegrees;
   right_eye->fieldOfView->rightDegrees = hDegrees;
 
-  left_eye->offset[0] = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*ipd*/ * -0.5f;
+  left_eye->offset[0] = 0.0f;
   left_eye->offset[1] = 0.0f;
   left_eye->offset[2] = 0.0f;
 
-  right_eye->offset[0] = THIS_VALUE_NEEDS_TO_BE_OBTAINED_FROM_THE_TANGO_API/*ipd*/ * 0.5f;
+  right_eye->offset[0] = 0.0f;
   right_eye->offset[1] = 0.0f;
   right_eye->offset[2] = 0.0f;
 
