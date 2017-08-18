@@ -921,10 +921,7 @@ TEST_P(GLES2DecoderTest2, ShaderSourceBucketInvalidHeader) {
   const char kValidStrEnd = 0;
   const GLsizei kCount = static_cast<GLsizei>(arraysize(kSource));
   const GLsizei kTests[] = {
-      kCount + 1,
-      0,
-      std::numeric_limits<GLsizei>::max(),
-      -1,
+      kCount + 1, 0, std::numeric_limits<GLsizei>::max(), -1,
   };
   for (size_t ii = 0; ii < arraysize(kTests); ++ii) {
     SetBucketAsCStrings(kBucketId, 1, kSource, kTests[ii], kValidStrEnd);
@@ -1223,10 +1220,7 @@ TEST_P(GLES3DecoderTest2, TransformFeedbackVaryingsBucketInvalidHeader) {
   const char kValidStrEnd = 0;
   const GLsizei kCount = static_cast<GLsizei>(arraysize(kSource));
   const GLsizei kTests[] = {
-      kCount + 1,
-      0,
-      std::numeric_limits<GLsizei>::max(),
-      -1,
+      kCount + 1, 0, std::numeric_limits<GLsizei>::max(), -1,
   };
   for (size_t ii = 0; ii < arraysize(kTests); ++ii) {
     SetBucketAsCStrings(kBucketId, 1, kSource, kTests[ii], kValidStrEnd);

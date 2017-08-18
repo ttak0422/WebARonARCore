@@ -484,12 +484,19 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
                 @Override
                 public void run() {
                     TangoJniNative.onTangoServiceConnected(mTango);
+
+                    // Finally load the URL in the main UI thread.
+                    AwShellActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Now we can finally load the URL
+                            mAwTestContainerView.getAwContents().loadUrl(mStartupUrl);
+                            AwContents.setShouldDownloadFavicons();
+                            mUrlTextView.setText(mStartupUrl);
+                        }
+                    });
                 }
             });
-            // Now we can finally load the URL
-            mAwTestContainerView.getAwContents().loadUrl(mStartupUrl);
-            AwContents.setShouldDownloadFavicons();
-            mUrlTextView.setText(mStartupUrl);
         }
     }
 

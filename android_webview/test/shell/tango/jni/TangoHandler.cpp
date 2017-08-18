@@ -788,22 +788,11 @@ bool TangoHandler::updateCameraImageIntoTexture(uint32_t textureId)
 {
   if (!connected) return false;
 
-  if (!textureIdConnected)
-  {
-      TangoErrorType result = TangoService_connectTextureId(TANGO_CAMERA_COLOR, textureId, nullptr, nullptr);
-      if (result != TANGO_SUCCESS)
-      {
-      LOGE("TangoHandler::updateCameraImageIntoTexture: Failed to connect the texture id with error code: %d", result);
-      return false;
-    }
-    textureIdConnected = true;
-  }
-
   TangoErrorType result = TangoService_updateTextureExternalOes(TANGO_CAMERA_COLOR, textureId, &lastTangoImageBufferTimestamp);
 
   std::time(&lastTangoImagebufferTimestampTime);
 
-  // LOGI("JUDAX: TangoHandler::updateCameraImageIntoTexture lastTangoImageBufferTimestamp = %lf", lastTangoImageBufferTimestamp);
+  // LOGI("JUDAX: TangoHandler::updateCameraImageIntoTexture lastTangoImageBufferTimestamp = %lf, result = %d, textureId = %d", lastTangoImageBufferTimestamp, result, textureId);
 
   return result == TANGO_SUCCESS;
 }

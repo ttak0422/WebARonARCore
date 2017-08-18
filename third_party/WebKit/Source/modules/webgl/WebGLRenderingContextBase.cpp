@@ -1808,6 +1808,10 @@ void WebGLRenderingContextBase::bindTexture(GLenum target,
   } else if (isWebGL2OrHigher() && target == GL_TEXTURE_3D) {
     m_textureUnits[m_activeTextureUnit].m_texture3DBinding =
         TraceWrapperMember<WebGLTexture>(this, texture);
+  } else if (target == GL_TEXTURE_EXTERNAL_OES) {
+    // TODO: In order to remove the use of the m_cameraImageTextureId property
+    // there should be a new property in m_textureUnits to store the 
+    // external textures (for example m_textureExternalOESBinding).
   } else {
     synthesizeGLError(GL_INVALID_ENUM, "bindTexture", "invalid target");
     return;

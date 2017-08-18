@@ -12,9 +12,7 @@
 #define GPU_COMMAND_BUFFER_SERVICE_GLES2_CMD_VALIDATION_IMPLEMENTATION_AUTOGEN_H_
 
 static const GLenum valid_attachment_table[] = {
-    GL_COLOR_ATTACHMENT0,
-    GL_DEPTH_ATTACHMENT,
-    GL_STENCIL_ATTACHMENT,
+    GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT, GL_STENCIL_ATTACHMENT,
 };
 
 static const GLenum valid_attachment_table_es3[] = {
@@ -22,16 +20,11 @@ static const GLenum valid_attachment_table_es3[] = {
 };
 
 static const GLenum valid_attachment_query_table[] = {
-    GL_COLOR_ATTACHMENT0,
-    GL_DEPTH_ATTACHMENT,
-    GL_STENCIL_ATTACHMENT,
+    GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT, GL_STENCIL_ATTACHMENT,
 };
 
 static const GLenum valid_attachment_query_table_es3[] = {
-    GL_DEPTH_STENCIL_ATTACHMENT,
-    GL_COLOR_EXT,
-    GL_DEPTH_EXT,
-    GL_STENCIL_EXT,
+    GL_DEPTH_STENCIL_ATTACHMENT, GL_COLOR_EXT, GL_DEPTH_EXT, GL_STENCIL_EXT,
 };
 
 bool Validators::BackbufferAttachmentValidator::IsValid(
@@ -155,8 +148,7 @@ static const GLenum valid_capability_table[] = {
 };
 
 static const GLenum valid_capability_table_es3[] = {
-    GL_RASTERIZER_DISCARD,
-    GL_PRIMITIVE_RESTART_FIXED_INDEX,
+    GL_RASTERIZER_DISCARD, GL_PRIMITIVE_RESTART_FIXED_INDEX,
 };
 
 bool Validators::CmpFunctionValidator::IsValid(const GLenum value) const {
@@ -175,10 +167,7 @@ bool Validators::CmpFunctionValidator::IsValid(const GLenum value) const {
 };
 
 static const GLenum valid_coverage_modulation_components_table[] = {
-    GL_RGB,
-    GL_RGBA,
-    GL_ALPHA,
-    GL_NONE,
+    GL_RGB, GL_RGBA, GL_ALPHA, GL_NONE,
 };
 
 bool Validators::DrawModeValidator::IsValid(const GLenum value) const {
@@ -210,14 +199,11 @@ static const GLenum valid_dst_blend_factor_table_es3[] = {
 };
 
 static const GLenum valid_equation_table[] = {
-    GL_FUNC_ADD,
-    GL_FUNC_SUBTRACT,
-    GL_FUNC_REVERSE_SUBTRACT,
+    GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT,
 };
 
 static const GLenum valid_equation_table_es3[] = {
-    GL_MIN,
-    GL_MAX,
+    GL_MIN, GL_MAX,
 };
 
 bool Validators::FaceModeValidator::IsValid(const GLenum value) const {
@@ -263,8 +249,7 @@ static const GLenum valid_framebuffer_target_table[] = {
 };
 
 static const GLenum valid_framebuffer_target_table_es3[] = {
-    GL_DRAW_FRAMEBUFFER,
-    GL_READ_FRAMEBUFFER,
+    GL_DRAW_FRAMEBUFFER, GL_READ_FRAMEBUFFER,
 };
 
 static const GLenum valid_g_l_state_table[] = {
@@ -453,13 +438,11 @@ bool Validators::GetMaxIndexTypeValidator::IsValid(const GLenum value) const {
 };
 
 static const GLenum valid_get_tex_param_target_table[] = {
-    GL_TEXTURE_2D,
-    GL_TEXTURE_CUBE_MAP,
+    GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP,
 };
 
 static const GLenum valid_get_tex_param_target_table_es3[] = {
-    GL_TEXTURE_2D_ARRAY,
-    GL_TEXTURE_3D,
+    GL_TEXTURE_2D_ARRAY, GL_TEXTURE_3D,
 };
 
 bool Validators::HintModeValidator::IsValid(const GLenum value) const {
@@ -493,8 +476,7 @@ static const GLenum valid_image_usage_table[] = {
 };
 
 static const GLenum valid_index_type_table[] = {
-    GL_UNSIGNED_BYTE,
-    GL_UNSIGNED_SHORT,
+    GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT,
 };
 
 static const GLenum valid_index_type_table_es3[] = {
@@ -674,8 +656,7 @@ bool Validators::PathTransformTypeValidator::IsValid(const GLenum value) const {
 };
 
 static const GLenum valid_pixel_store_table[] = {
-    GL_PACK_ALIGNMENT,
-    GL_UNPACK_ALIGNMENT,
+    GL_PACK_ALIGNMENT, GL_UNPACK_ALIGNMENT,
 };
 
 static const GLenum valid_pixel_store_table_es3[] = {
@@ -697,9 +678,7 @@ bool Validators::PixelStoreAlignmentValidator::IsValid(
 };
 
 static const GLenum valid_pixel_type_table[] = {
-    GL_UNSIGNED_BYTE,
-    GL_UNSIGNED_SHORT_5_6_5,
-    GL_UNSIGNED_SHORT_4_4_4_4,
+    GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT_5_6_5, GL_UNSIGNED_SHORT_4_4_4_4,
     GL_UNSIGNED_SHORT_5_5_5_1,
 };
 
@@ -787,9 +766,7 @@ static const GLenum valid_read_buffer_table[] = {
 };
 
 static const GLenum valid_read_pixel_format_table[] = {
-    GL_ALPHA,
-    GL_RGB,
-    GL_RGBA,
+    GL_ALPHA, GL_RGB, GL_RGBA,
 };
 
 static const GLenum valid_read_pixel_format_table_es3[] = {
@@ -798,9 +775,7 @@ static const GLenum valid_read_pixel_format_table_es3[] = {
 };
 
 static const GLenum valid_read_pixel_type_table[] = {
-    GL_UNSIGNED_BYTE,
-    GL_UNSIGNED_SHORT_5_6_5,
-    GL_UNSIGNED_SHORT_4_4_4_4,
+    GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT_5_6_5, GL_UNSIGNED_SHORT_4_4_4_4,
     GL_UNSIGNED_SHORT_5_5_5_1,
 };
 
@@ -968,8 +943,7 @@ bool Validators::StringTypeValidator::IsValid(const GLenum value) const {
 };
 
 static const GLbitfield valid_sync_flush_flags_table[] = {
-    GL_SYNC_FLUSH_COMMANDS_BIT,
-    0,
+    GL_SYNC_FLUSH_COMMANDS_BIT, 0,
 };
 
 bool Validators::SyncParameterValidator::IsValid(const GLenum value) const {
@@ -993,13 +967,11 @@ bool Validators::Texture3DTargetValidator::IsValid(const GLenum value) const {
 };
 
 static const GLenum valid_texture_bind_target_table[] = {
-    GL_TEXTURE_2D,
-    GL_TEXTURE_CUBE_MAP,
+    GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP,
 };
 
 static const GLenum valid_texture_bind_target_table_es3[] = {
-    GL_TEXTURE_3D,
-    GL_TEXTURE_2D_ARRAY,
+    GL_TEXTURE_3D, GL_TEXTURE_2D_ARRAY,
 };
 
 bool Validators::TextureCompareFuncValidator::IsValid(
@@ -1019,8 +991,7 @@ bool Validators::TextureCompareFuncValidator::IsValid(
 };
 
 static const GLenum valid_texture_compare_mode_table[] = {
-    GL_NONE,
-    GL_COMPARE_REF_TO_TEXTURE,
+    GL_NONE, GL_COMPARE_REF_TO_TEXTURE,
 };
 
 static const GLenum valid_texture_depth_renderable_internal_format_table_es3[] =
@@ -1196,9 +1167,7 @@ bool Validators::TextureMinFilterModeValidator::IsValid(
 };
 
 static const GLenum valid_texture_parameter_table[] = {
-    GL_TEXTURE_MAG_FILTER,
-    GL_TEXTURE_MIN_FILTER,
-    GL_TEXTURE_WRAP_S,
+    GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MIN_FILTER, GL_TEXTURE_WRAP_S,
     GL_TEXTURE_WRAP_T,
 };
 
@@ -1259,9 +1228,7 @@ bool Validators::TextureSrgbDecodeExtValidator::IsValid(
 
 static const GLenum
     valid_texture_stencil_renderable_internal_format_table_es3[] = {
-        GL_STENCIL_INDEX8,
-        GL_DEPTH24_STENCIL8,
-        GL_DEPTH32F_STENCIL8,
+        GL_STENCIL_INDEX8, GL_DEPTH24_STENCIL8, GL_DEPTH32F_STENCIL8,
 };
 
 bool Validators::TextureSwizzleValidator::IsValid(const GLenum value) const {
@@ -1388,8 +1355,7 @@ static const GLenum valid_vertex_attribute_table[] = {
 };
 
 static const GLenum valid_vertex_attribute_table_es3[] = {
-    GL_VERTEX_ATTRIB_ARRAY_INTEGER,
-    GL_VERTEX_ATTRIB_ARRAY_DIVISOR,
+    GL_VERTEX_ATTRIB_ARRAY_INTEGER, GL_VERTEX_ATTRIB_ARRAY_DIVISOR,
 };
 
 static const GLenum valid_vertex_pointer_table[] = {
