@@ -575,6 +575,7 @@ class MODULES_EXPORT WebGLRenderingContextBase : public CanvasRenderingContext,
     TraceWrapperMember<WebGLTexture> m_textureCubeMapBinding;
     TraceWrapperMember<WebGLTexture> m_texture3DBinding;
     TraceWrapperMember<WebGLTexture> m_texture2DArrayBinding;
+    TraceWrapperMember<WebGLTexture> m_textureExternalOESBinding;
 
     DECLARE_TRACE();
     // Wrappers are traced by parent since TextureUnitState is not a heap

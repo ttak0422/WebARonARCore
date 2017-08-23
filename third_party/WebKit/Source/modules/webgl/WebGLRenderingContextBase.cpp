@@ -1812,6 +1812,8 @@ void WebGLRenderingContextBase::bindTexture(GLenum target,
     // TODO: In order to remove the use of the m_cameraImageTextureId property
     // there should be a new property in m_textureUnits to store the 
     // external textures (for example m_textureExternalOESBinding).
+    m_textureUnits[m_activeTextureUnit].m_textureExternalOESBinding =
+        TraceWrapperMember<WebGLTexture>(this, texture);
   } else {
     synthesizeGLError(GL_INVALID_ENUM, "bindTexture", "invalid target");
     return;
@@ -6612,6 +6614,9 @@ WebGLTexture* WebGLRenderingContextBase::validateTextureBinding(
         return nullptr;
       }
       tex = m_textureUnits[m_activeTextureUnit].m_texture2DArrayBinding.get();
+      break;
+    case GL_TEXTURE_EXTERNAL_OES:
+      tex = m_textureUnits[m_activeTextureUnit].m_textureExternalOESBinding.get();
       break;
     default:
       synthesizeGLError(GL_INVALID_ENUM, functionName,

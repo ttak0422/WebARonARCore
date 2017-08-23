@@ -22,8 +22,6 @@
 extern "C" {
 #endif
 
-void TangoService_disconnectAndUnbind();
-
 TangoErrorType TangoService_Experimental_getPlaneByUVCoord(
     int cameraId, const TangoPoseData* camera_pose, const double uvCoord[2],
     TangoPlaneData* planeData);
