@@ -112,9 +112,11 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
     private WebContents mWebContents;
     private NavigationController mNavigationController;
     private EditText mUrlTextView;
-    private ImageButton mPrevButton;
-    private ImageButton mNextButton;
-    private ImageButton mQRCodeButton;
+    // private ImageButton mPrevButton;
+    // private ImageButton mNextButton;
+    // private ImageButton mQRCodeButton;
+    private ImageButton mBackButton;
+    private ImageButton mRefreshButton;
     private boolean mInitialized = false;
     private boolean mAllPermissionsGranted = false;
     private boolean mResumed = false;
@@ -765,8 +767,8 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 setKeyboardVisibilityForUrl(hasFocus);
-                mNextButton.setVisibility(hasFocus ? View.GONE : View.VISIBLE);
-                mPrevButton.setVisibility(hasFocus ? View.GONE : View.VISIBLE);
+                // mNextButton.setVisibility(hasFocus ? View.GONE : View.VISIBLE);
+                // mPrevButton.setVisibility(hasFocus ? View.GONE : View.VISIBLE);
                 if (!hasFocus) {
                     mUrlTextView.setText(mWebContents.getUrl());
                 }
@@ -775,8 +777,37 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
     }
 
     private void initializeNavigationButtons() {
-        mPrevButton = (ImageButton) findViewById(R.id.prev);
-        mPrevButton.setOnClickListener(new OnClickListener() {
+        // mPrevButton = (ImageButton) findViewById(R.id.prev);
+        // mPrevButton.setOnClickListener(new OnClickListener() {
+        //     @Override
+        //     public void onClick(View v) {
+        //         if (mNavigationController.canGoBack()) {
+        //             mNavigationController.goBack();
+        //         }
+        //     }
+        // });
+
+        // mNextButton = (ImageButton) findViewById(R.id.next);
+        // mNextButton.setOnClickListener(new OnClickListener() {
+        //     @Override
+        //     public void onClick(View v) {
+        //         if (mNavigationController.canGoForward()) {
+        //             mNavigationController.goForward();
+        //         }
+        //     }
+        // });
+
+        // mQRCodeButton = (ImageButton) findViewById(R.id.qrcodeImageButton);
+        // mQRCodeButton.setOnClickListener(new OnClickListener() {
+        //     @Override
+        //     public void onClick(View v) {
+        //         IntentIntegrator intentIntegrator = new IntentIntegrator(AwShellActivity.this);
+        //         intentIntegrator.initiateScan();
+        //     }
+        // });
+
+        mBackButton = (ImageButton) findViewById(R.id.backImageButton);
+        mBackButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mNavigationController.canGoBack()) {
@@ -785,22 +816,11 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
             }
         });
 
-        mNextButton = (ImageButton) findViewById(R.id.next);
-        mNextButton.setOnClickListener(new OnClickListener() {
+        mRefreshButton = (ImageButton) findViewById(R.id.refreshImageButton);
+        mRefreshButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mNavigationController.canGoForward()) {
-                    mNavigationController.goForward();
-                }
-            }
-        });
-
-        mQRCodeButton = (ImageButton) findViewById(R.id.qrcodeImageButton);
-        mQRCodeButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                IntentIntegrator intentIntegrator = new IntentIntegrator(AwShellActivity.this);
-                intentIntegrator.initiateScan();
+                mNavigationController.reload(true);
             }
         });
     }
