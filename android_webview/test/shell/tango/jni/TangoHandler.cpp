@@ -617,9 +617,9 @@ bool TangoHandler::hitTest(float x, float y, std::vector<Hit>& hits)
       // Invert the combined matrix because we need to go from screen -> world.
       projViewMatrix = inverse(projViewMatrix);
 
-      // Create a ray in screen-space for the hit test.
-      vec3 rayStart = vec3((2 * x) - 1, (2 * y) - 1, 0);
-      vec3 rayEnd   = vec3((2 * x) - 1, (2 * y) - 1, 1);
+      // Create a ray in screen-space for the hit test ([-1, 1] with y flip).
+      vec3 rayStart = vec3((2 * x) - 1, (2 * (1 - y)) - 1, 0);
+      vec3 rayEnd   = vec3((2 * x) - 1, (2 * (1 - y)) - 1, 1);
 
       // Transform the ray into world-space.
       vec3 worldRayOrigin = transformVec3ByMat4(rayStart, projViewMatrix);
