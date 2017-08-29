@@ -94,7 +94,7 @@ import com.google.atap.tangoservice.Tango;
 public class AwShellActivity extends Activity implements OnRequestPermissionsResultCallback {
     private static final String TAG = "cr.AwShellActivity";
     private static final String PREFERENCES_NAME = "AwShellPrefs";
-    private static final String INITIAL_URL = "http://arx.mono.hm";
+    private static final String INITIAL_URL = "https://developers.google.com/ar/develop/web/getting-started#examples";
     private static final String LAST_USED_URL_PREFERENCE_NAME = "url";
     private static final int ADF_PERMISSION_ID = 2;
     private static final int CAMERA_ID = 0;
