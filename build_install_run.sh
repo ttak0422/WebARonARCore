@@ -106,8 +106,12 @@ if [ $? -eq 0 ]; then
 			NINJA_RESULT=$?
 		fi
 		if [ $NINJA_RESULT -eq 0 ]; then
-			adb uninstall org.chromium.android_webview.shell
+			# adb uninstall "$APP_CLASSPATH"
 			echo "Built!"
+			# Copy the final APK to the apk folder
+			rm -rf apk 
+			mkdir apk
+			cp "out/$BRANCH_NAME/apks/AndroidWebView.apk" apk/WebARonARCore.apk
 			echo "Installing $APK_TYPE on Android device..."
 			adb install -r "out/$BRANCH_NAME/apks/$APK_FILE_NAME.apk"
 			if [ $? -eq 0 ]; then

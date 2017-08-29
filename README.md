@@ -19,7 +19,7 @@ WebARonARCore is built on top of Android [ARCore](https://developers.google.com/
 ### <a name="InstallingAPK">Option 1: Install the APK</a>
 * Plug your device into a USB slot on your computer
 * Verify that ADB can see the device with `$ adb devices`. You should see your device in the output. If not (adb can be flaky), keep unplugging your device and plugging it back in until it shows up.
-* Download the ARCore APK form [here](AR_CORE_APK_URL). You can also go to [AR_CORE_APK_URL](AR_CORE_APK_URL) using a browser on your Android device and download and install it directly.
+* Download the ARCore APK form [here](https://github.com/google-ar/arcore-android-sdk/releases/download/sdk-preview/arcore-preview.apk). You can also go to [https://github.com/google-ar/arcore-android-sdk/releases/download/sdk-preview/arcore-preview.apk](https://github.com/google-ar/arcore-android-sdk/releases/download/sdk-preview/arcore-preview.apk) using a browser on your Android device and download and install it directly.
 * Download the WebARonARCore APK from [here](WEBAR_ON_ARCORE_APK_URL). You can also go to [WEBAR_ON_ARCORE_APK_URL](WEBAR_ON_ARCORE_APK_URL) using a browser on your Android device and download and install it directly.
 * If you downloaded the ARCore APK, install it to your device: `$ adb install -r arcore_preview.apk`
 * If you downloaded the WebARonARCore APK, install it to your device: `$ adb install -r WebARonARCore.apk`
@@ -45,7 +45,7 @@ We recommend you follow the following steps.
 3. Create a folder to contain `chromium` and move to it: `$ mkdir ~/chromium && cd ~/chromium`
 4. Checkout the Chromium repo: `~/chromium$ fetch --nohooks android`. **Note**: This process may take a long time (an hour?)
 5. Enter the `src` folder: `$ cd src`.
-6. Add this git repo as a remote (we are going to call it 'github'): `git remote add github WEBAR_ON_ARCORE_GITHUB_REPO_URL`
+6. Add this git repo as a remote (we are going to call it 'github'): `git remote add github https://github.com/google-ar/WebARonARCore.git`
 7. Fetch the newly added remote: `git fetch github`
 8. Checkout the webarcore branch from the github remote: `git checkout --track github/webarcore_57.0.2987.5`
 9. Synchronize the dependencies with this command: `~/chromium/src$ gclient sync --disable-syntax-validation`. **Note**: This process may take some time too.
