@@ -14,29 +14,31 @@ WebARonARCore is built on top of Android [ARCore](https://developers.google.com/
 
 ## <a name="Getting started">Getting started</a>
 
+### Install the ARCore APK
+
 In order to use ARCore you need to install the ARCore APK first.
 
-###Directly from a device
+#### Directly from a device
 
 * Open an web browser on your Android device.
 * Go to [https://github.com/google-ar/arcore-android-sdk/releases/download/sdk-preview/arcore-preview.apk](https://github.com/google-ar/arcore-android-sdk/releases/download/sdk-preview/arcore-preview.apk) and download and install the ARCore APK directly.
 
-###Using ADB
+#### Using ADB
 
 * Download the ARCore APK form [here](https://github.com/google-ar/arcore-android-sdk/releases/download/sdk-preview/arcore-preview.apk).
 * Install the ARCore APK to your device: `$ adb install -r arcore_preview.apk`
 
 WebARonARCore can be [installed from an APK](#InstallingAPK), or [built from source](#CompileFromSource).
 
-### <a name="InstallingAPK">Option 1: Install the APK</a>
+### <a name="InstallingAPK">Option 1: Install the WebARonARCore APK</a>
 
-####Directly from a device
+#### Directly from a device
 
 * Open an web browser on your Android device.
 * Go to [https://github.com/google-ar/WebARonARCore/raw/webarcore_57.0.2987.5/apk/WebARonARCore.apk](https://github.com/google-ar/WebARonARCore/raw/webarcore_57.0.2987.5/apk/WebARonARCore.apk) and download and install the WebARonARCore APK directly.
 * Launch the WebARonARCore app from your device.
 
-####Using ADB
+#### Using ADB
 
 * Download the WebARonARCore APK from [here](https://github.com/google-ar/WebARonARCore/blob/webarcore_57.0.2987.5/apk/WebARonARCore.apk). 
 * Install the WebARonARCore APK to your device: `$ adb install -r WebARonARCore.apk`
