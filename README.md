@@ -88,7 +88,7 @@ A [list of examples](https://developers.google.com/ar/develop/web/getting-starte
 
 ## <a name="HowWebARonARCoreWorks">How WebARonARCore works</a>
 
-WebARonARCore is built of two essential technologies: ARCore and Chromium. We also extend the WebVR 1.1 API, which gives us much of what we need for augmented reality, with a few more essentials, such as motion tracking, rendering of the camera's video feed, and basic understanding of the real world. For details, see [WebVR API extension for smartphone AR](https://github.com/google-ar/WebARonARCore/blob/master/webvr_ar_extension.md)
+WebARonARCore is built of two essential technologies: ARCore and Chromium. We also extend the WebVR 1.1 API, which gives us much of what we need for augmented reality, with a few more essentials, such as motion tracking, rendering of the camera's video feed, and basic understanding of the real world. For details, see [WebVR API extension for smartphone AR](https://github.com/google-ar/three.ar.js/blob/master/webvr_ar_extension.md)
 
 ## <a name="KnownIssues">Known issues</a>
 * The current implementation of WebAR is built on top of the Chromium WebView flavor. This has some implementation advantages but some performance and use disadvantages. We are working on making the implementation on a full version of Chromium.
