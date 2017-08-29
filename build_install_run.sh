@@ -74,14 +74,17 @@ if [ $? -eq 0 ]; then
 		APK_FILE_NAME="ChromePublic"
 		APK_RUN_SCRIPT_NAME="adb_run_chrome_public"
 		COMMAND_LINE="adb_chrome_public_command_line"
+		APP_CLASSPATH="org.chromium.chrome/com.google.android.apps.chrome"
 	elif [ "$APK_TYPE" == "android_webview_apk" ]; then
 		APK_FILE_NAME="AndroidWebView"
 		APK_RUN_SCRIPT_NAME="adb_run_android_webview_shell"
 		COMMAND_LINE="adb_android_webview_command_line"
+		APP_CLASSPATH="org.chromium.android_webview.shell"
 	elif [ "$APK_TYPE" == "content_shell_apk" ]; then
 		APK_FILE_NAME="ContentShell"
 		APK_RUN_SCRIPT_NAME="adb_run_content_shell"
 		COMMAND_LINE="adb_content_shell_command_line"
+		APP_CLASSPATH="org.chromium.content_shell_apk"
 	else
 		echo "ERROR: The provided apk target name to be built '$APK_TYPE' is not one of the 3 possibilities: chrome_public_apk, android_webview_apk, content_shell_apk"
 		exit 1
@@ -103,12 +106,17 @@ if [ $? -eq 0 ]; then
 			NINJA_RESULT=$?
 		fi
 		if [ $NINJA_RESULT -eq 0 ]; then
-			# adb uninstall org.chromium.android_webview.shell
+			adb uninstall org.chromium.android_webview.shell
 			echo "Built!"
 			echo "Installing $APK_TYPE on Android device..."
 			adb install -r "out/$BRANCH_NAME/apks/$APK_FILE_NAME.apk"
 			if [ $? -eq 0 ]; then
 				echo "Installed!"
+				adb shell pm grant "$APP_CLASSPATH" android.permission.CAMERA
+				adb shell pm grant "$APP_CLASSPATH" android.permission.READ_EXTERNAL_STORAGE
+				adb shell pm grant "$APP_CLASSPATH" android.permission.RECORD_AUDIO
+				adb shell pm grant "$APP_CLASSPATH" android.permission.MODIFY_AUDIO_SETTINGS
+				adb shell pm grant "$APP_CLASSPATH" android.permission.ACCESS_COARSE_LOCATION
 				# echo "Setting up Chrome flags..."
 				# build/android/$COMMAND_LINE --ignore-gpu-blacklist --enable-webvr
 				# if [ $? -eq 0 ]; then
