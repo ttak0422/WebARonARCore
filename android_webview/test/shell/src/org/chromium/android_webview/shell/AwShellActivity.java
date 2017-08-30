@@ -475,6 +475,8 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
             mStartupUrl = getPreferences(Activity.MODE_PRIVATE).getString(LAST_USED_URL_PREFERENCE_NAME, INITIAL_URL);
         }
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        
         mInitialized = true;
     }
 
