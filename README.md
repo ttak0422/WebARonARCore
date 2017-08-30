@@ -28,24 +28,29 @@ In order to use ARCore you need to install the ARCore APK first.
 * Download the ARCore APK form [here](https://github.com/google-ar/arcore-android-sdk/releases/download/sdk-preview/arcore-preview.apk).
 * Install the ARCore APK to your device: `$ adb install -r arcore_preview.apk`
 
-WebARonARCore can be [installed from an APK](#InstallingAPK), or [built from source](#CompileFromSource).
+### Install the WebARonARCore APK
 
-### <a name="InstallingAPK">Option 1: Install the WebARonARCore APK</a>
+Once ARCore is installed, WebARonARCore can be [installed from a prebuilt APK](#InstallingAPK), or [built from source](#CompileFromSource).
 
-#### Directly from a device
+#### <a name="InstallingAPK">Option 1: Install the prebuilt WebARonARCore APK</a>
+
+We have provided a prebuilt APK for your convenience inside this repo. You can install it:
+
+##### Directly from a device
 
 * Open an web browser on your Android device.
 * Go to [https://github.com/google-ar/WebARonARCore/raw/webarcore_57.0.2987.5/apk/WebARonARCore.apk](https://github.com/google-ar/WebARonARCore/raw/webarcore_57.0.2987.5/apk/WebARonARCore.apk) and download and install the WebARonARCore APK directly.
 * Launch the WebARonARCore app from your device.
 
-#### Using ADB
+##### Using ADB
 
 * Download the WebARonARCore APK from [here](https://github.com/google-ar/WebARonARCore/blob/webarcore_57.0.2987.5/apk/WebARonARCore.apk). 
 * Install the WebARonARCore APK to your device: `$ adb install -r WebARonARCore.apk`
 * Launch the WebARonARCore app from your device.
 
-### <a name="CompileFromSource">Option 2: Compile from Source</a>
-#### Clone the git repo and prepare it to be built
+#### <a name="CompileFromSource">Option 2: Build the WebARonARCore APK from source</a>
+
+##### Clone the git repo and prepare it to be built
 
 Instructions for [cloning and building Chromium](https://www.chromium.org/developers/how-tos/android-build-instructions) are available at [chromium.org](https://www.chromium.org/developers/how-tos/android-build-instructions)
 
@@ -86,7 +91,7 @@ We recommend you follow the following steps.
 14. Synchronize the resources once again: `~/chromium/src$ gclient sync --disable-syntax-validation`
 15. Setup the environment: `~/chromium/src$ . build/android/envsetup.sh`
 
-#### 2. Build, install and run
+##### 2. Build, install and run
 
 The line below not only compiles Chromium but also installs the final APK on to a connected device and runs it, so it is convenient that you to connect the device via USB before executing it. The project that will be built by default is the Chromium WebView project, the only one that has been modified to provide AR capabilities.
 ```
