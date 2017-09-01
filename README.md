@@ -10,7 +10,7 @@
  
 ### <a name="InstallingTheARCoreSDK">1. Install the ARCore APK</a>
 
-WebARonARCore is built on top of [Android ARCore APK](https://developers.google.com/ar), which requires one of the following officially-supprted devices:
+WebARonARCore is built on top of [Android ARCore APK](https://developers.google.com/ar), which requires one of the following officially-supported devices:
 
 * Google Pixel or Pixel XL
 * Samsung Galaxy S8
@@ -26,7 +26,7 @@ Install the ARCore APK, either directly from a device:
 
 ### <a name="InstallTheWebARonARCoreAPK">2. Install the WebARonARCore APK</a>
 
-Directly from a device:
+Directly from a device: 
 
 * Visit [this link](https://github.com/google-ar/WebARonARCore/raw/webarcore_57.0.2987.5/apk/WebARonARCore.apk) from a web browser on your Android device to download and install the WebARonARCore APK.
 
