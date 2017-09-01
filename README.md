@@ -8,20 +8,20 @@
 
 ## Getting started
  
-### <a name="InstallingTheARCoreSDK">1. Install the ARCore SDK</a>
+### <a name="InstallingTheARCoreSDK">1. Install the ARCore APK</a>
 
-WebARonARCore is built on top of [Android ARCore SDK](https://developers.google.com/ar), which requires a compatible Android device. For best results, we recommend:
+WebARonARCore is built on top of [Android ARCore APK](https://developers.google.com/ar), which requires one of the following officially-supprted devices:
 
 * Google Pixel or Pixel XL
 * Samsung Galaxy S8
 
-Install the ARCore SDK, either directly from a device:
+Install the ARCore APK, either directly from a device:
 
-* Visit [this link](https://github.com/google-ar/arcore-android-sdk/releases/download/sdk-preview/arcore-preview.apk) from a web browser on your Android device to download and install the ARCore SDK.
+* Visit [this link](https://github.com/google-ar/arcore-android-sdk/releases/download/sdk-preview/arcore-preview.apk) from a web browser on your Android device to download and install the ARCore APK.
 
 ...or by using ADB:
 
-* Download the ARCore SDK to your computer from [here](https://github.com/google-ar/arcore-android-sdk/releases/download/sdk-preview/arcore-preview.apk) and install the APK to your device:
+* Download the ARCore APK to your computer from [here](https://github.com/google-ar/arcore-android-sdk/releases/download/sdk-preview/arcore-preview.apk) and install the APK to your device:
   * `$ adb install -r path/to/arcore_preview.apk`
 
 ### <a name="InstallTheWebARonARCoreAPK">2. Install the WebARonARCore APK</a>
@@ -32,7 +32,7 @@ Directly from a device:
 
 ...or by using ADB:
 
-* Download the [WebARonARCore APK](https://github.com/google-ar/WebARonARCore/blob/webarcore_57.0.2987.5/apk/WebARonARCore.apk). 
+* Download the [WebARonARCore APK](https://github.com/google-ar/WebARonARCore/raw/webarcore_57.0.2987.5/apk/WebARonARCore.apk). 
 * Install the APK to your device:
   * `$ adb install -r /path/to/WebARonARCore.apk`
 
@@ -47,7 +47,7 @@ To build AR web experiences that work with WebARonARCore (or [WebARonARKit for i
 
 ## <a name="BuildingFromSource">Building the WebARonARCore APK from source</a>
 
-WebARonARCore can optionally be built and installed from source. First, clone the git repo and prepare it to be built. Instructions for [cloning and building Chromium](https://www.chromium.org/developers/how-tos/android-build-instructions) are available at [chromium.org](https://www.chromium.org/developers/how-tos/android-build-instructions)
+WebARonARCore can optionally be built and installed from source. Instructions for [cloning and building Chromium](https://www.chromium.org/developers/how-tos/android-build-instructions) are available at [chromium.org](https://www.chromium.org/developers/how-tos/android-build-instructions)
 
 Prerequisites:
 
