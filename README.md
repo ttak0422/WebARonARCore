@@ -1,6 +1,6 @@
 # WebARonARCore
 
-**An experimental app for Android that lets developers create Augmented Reality (AR) experiences using web technologies. An [iOS version](https://github.com/google-ar/WebARonARKit) is also available.**
+**An experimental browser for Android that lets developers create Augmented Reality (AR) experiences using web technologies. An [iOS version](https://github.com/google-ar/WebARonARKit) is also available.**
 
 <img alt="Spawn-at-Camera example" src="https://github.com/google-ar/three.ar.js/raw/master/examples/screencaps/20170829-arcore-spawnAtCamera-1.gif" style="float: left; object-fit: cover; width: 45%; height: 20em; margin-right: 1em; "><img alt="Spawn-at-Surface example" src="https://github.com/google-ar/three.ar.js/raw/master/examples/screencaps/20170829-arcore-spawnAtSurface-1.gif" style="width: 45%; height: 20em; object-fit: cover;">
 
