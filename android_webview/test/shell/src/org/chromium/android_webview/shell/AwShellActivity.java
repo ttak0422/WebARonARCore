@@ -16,6 +16,8 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.IBinder;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -35,6 +37,7 @@ import android.webkit.WebChromeClient;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -113,11 +116,10 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
     private WebContents mWebContents;
     private NavigationController mNavigationController;
     private EditText mUrlTextView;
-    // private ImageButton mPrevButton;
-    // private ImageButton mNextButton;
     // private ImageButton mQRCodeButton;
     private ImageButton mBackButton;
     private ImageButton mRefreshButton;
+    private ProgressBar mProgressBar;
     private boolean mInitialized = false;
     private boolean mAllPermissionsGranted = false;
     private boolean mResumed = false;
@@ -702,6 +704,19 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
             @Override
             public void onPermissionRequestCanceled(AwPermissionRequest awPermissionRequest) {
             }
+
+            @Override
+            public void onProgressChanged(int progress)
+            {
+                mProgressBar.setProgress(progress, true);
+		if(progress > 99)
+		{
+		    mProgressBar.setVisibility(View.GONE);
+        	}
+		else {
+		    mProgressBar.setVisibility(View.VISIBLE);
+		}
+	    }
         };
 
         SharedPreferences sharedPreferences =
@@ -783,8 +798,6 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 setKeyboardVisibilityForUrl(hasFocus);
-                // mNextButton.setVisibility(hasFocus ? View.GONE : View.VISIBLE);
-                // mPrevButton.setVisibility(hasFocus ? View.GONE : View.VISIBLE);
                 if (!hasFocus) {
                     mUrlTextView.setText(mWebContents.getUrl());
                 }
@@ -793,26 +806,6 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
     }
 
     private void initializeNavigationButtons() {
-        // mPrevButton = (ImageButton) findViewById(R.id.prev);
-        // mPrevButton.setOnClickListener(new OnClickListener() {
-        //     @Override
-        //     public void onClick(View v) {
-        //         if (mNavigationController.canGoBack()) {
-        //             mNavigationController.goBack();
-        //         }
-        //     }
-        // });
-
-        // mNextButton = (ImageButton) findViewById(R.id.next);
-        // mNextButton.setOnClickListener(new OnClickListener() {
-        //     @Override
-        //     public void onClick(View v) {
-        //         if (mNavigationController.canGoForward()) {
-        //             mNavigationController.goForward();
-        //         }
-        //     }
-        // });
-
         // mQRCodeButton = (ImageButton) findViewById(R.id.qrcodeImageButton);
         // mQRCodeButton.setOnClickListener(new OnClickListener() {
         //     @Override
@@ -839,6 +832,12 @@ public class AwShellActivity extends Activity implements OnRequestPermissionsRes
                 mNavigationController.reload(true);
             }
         });
+
+        mProgressBar = (ProgressBar) findViewById(R.id.progressbar);
+	int fillColor = Color.parseColor("#2196F3");
+	mProgressBar.setProgressTintList(ColorStateList.valueOf(fillColor));
+    	int backgroundColor = Color.parseColor("#BBDEFB");
+	mProgressBar.setProgressBackgroundTintList(ColorStateList.valueOf(backgroundColor));
     }
 
     @Override
