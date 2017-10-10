@@ -29,6 +29,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <unordered_map>
 
 #include <mutex>
 
@@ -48,73 +49,87 @@ class Plane
 {
 public:
 	long identifier;
+	long timestamp;
 	float modelMatrix[16];
 	float extent[2];
 	std::vector<float> vertices;
   uint count;
 };
 
+class PlaneDeltas
+{
+public:
+	std::vector<Plane> added;
+	std::vector<Plane> updated;
+	std::vector<long> removed;
+};
+
 // TangoHandler provides functionality to communicate with the Tango Service.
 class TangoHandler {
 public:
-	static TangoHandler* getInstance();
-	static void releaseInstance();
+  static TangoHandler* getInstance();
+  static void releaseInstance();
 
-	TangoHandler();
+  TangoHandler();
 
-	TangoHandler(const TangoHandler& other) = delete;
-	TangoHandler& operator=(const TangoHandler& other) = delete;
+  TangoHandler(const TangoHandler& other) = delete;
+  TangoHandler& operator=(const TangoHandler& other) = delete;
 
-	~TangoHandler();
+  ~TangoHandler();
 
-	void onCreate(JNIEnv* env, jobject activity, int activityOrientation, int sensorOrientation);
-	void onTangoServiceConnected(JNIEnv* env, jobject tango);
-	void onPause();
-	void onDeviceRotationChanged(int activityOrientation, int sensorOrientation);
-	void onTangoEventAvailable(const TangoEvent* event);
+  void onCreate(JNIEnv* env, jobject activity, int activityOrientation, int sensorOrientation);
+  void onTangoServiceConnected(JNIEnv* env, jobject tango);
+  void onPause();
+  void onDeviceRotationChanged(int activityOrientation, int sensorOrientation);
+  void onTangoEventAvailable(const TangoEvent* event);
 
-	bool isConnected() const;
+  bool isConnected() const;
 
-	bool getPose(TangoPoseData* tangoPoseData);
-	bool getProjectionMatrix(float near, float far, float* projectionMatrix);
-	bool hitTest(float x, float y, std::vector<Hit>& hits);
-	bool getPlanes(std::vector<Plane>& planes);
-	void resetPose();
+  bool getPose(TangoPoseData* tangoPoseData);
+  bool getProjectionMatrix(float near, float far, float* projectionMatrix);
+  bool hitTest(float x, float y, std::vector<Hit>& hits);
+  bool getPlaneDeltas(PlaneDeltas& planeDeltas);
 
-	bool updateCameraIntrinsics();
-	bool getCameraImageSize(uint32_t* width, uint32_t* height);
-	bool getCameraImageTextureSize(uint32_t* width, uint32_t* height);
-	bool getCameraFocalLength(double* focalLengthX, double* focalLengthY);
-	bool getCameraPoint(double* x, double* y);
-	bool updateCameraImageIntoTexture(uint32_t textureId);
+  void resetPose();
 
-	int getSensorOrientation() const;
-	int getActivityOrientation() const;
+  bool updateCameraIntrinsics();
+  bool getCameraImageSize(uint32_t* width, uint32_t* height);
+  bool getCameraImageTextureSize(uint32_t* width, uint32_t* height);
+  bool getCameraFocalLength(double* focalLengthX, double* focalLengthY);
+  bool getCameraPoint(double* x, double* y);
+  bool updateCameraImageIntoTexture(uint32_t textureId);
+
+  int getSensorOrientation() const;
+  int getActivityOrientation() const;
 
 private:
-	void connect();
-	void disconnect();
-	bool hasLastTangoImageBufferTimestampChangedLately();
+  void connect();
+  void disconnect();
+  bool hasLastTangoImageBufferTimestampChangedLately();
 
-	static TangoHandler* instance;
+  bool getPlanes(std::vector<Plane>& planes);
 
-	bool connected;
-	TangoConfig tangoConfig;
-	TangoCameraIntrinsics tangoCameraIntrinsics;
-	double lastTangoImageBufferTimestamp;
-	std::time_t lastTangoImagebufferTimestampTime;
+  static TangoHandler* instance;
 
-	uint32_t cameraImageWidth;
-	uint32_t cameraImageHeight;
-	uint32_t cameraImageTextureWidth;
-	uint32_t cameraImageTextureHeight;
+  bool connected;
+  TangoConfig tangoConfig;
+  TangoCameraIntrinsics tangoCameraIntrinsics;
+  double lastTangoImageBufferTimestamp;
+  std::time_t lastTangoImagebufferTimestampTime;
 
-	bool textureIdConnected;
+  std::unordered_map<long, Plane> planeMap;
 
-	int activityOrientation;
-	int sensorOrientation;
+  uint32_t cameraImageWidth;
+  uint32_t cameraImageHeight;
+  uint32_t cameraImageTextureWidth;
+  uint32_t cameraImageTextureHeight;
 
-	std::string tangoCoreVersionString;
+  bool textureIdConnected;
+
+  int activityOrientation;
+  int sensorOrientation;
+
+  std::string tangoCoreVersionString;
 };
 
 }  // namespace tango_4_chromium

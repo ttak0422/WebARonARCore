@@ -696,6 +696,8 @@ bool TangoHandler::getPlanes(std::vector<Plane>& planes) {
         // Set the plane's unique identifier.
         plane.identifier = (long)planeData.id;
 
+        plane.timestamp = planeData.timestamp;
+
         // Set the transform values from the transformed plane matrix.
         mat4 planeMatrix = getPlaneMatrixFromPlanePose(planeData.pose);
         mat4 yawMatrix = toMat4(angleAxis((float)planeData.yaw, vec3(0, 1, 0)));
@@ -744,6 +746,46 @@ bool TangoHandler::getPlanes(std::vector<Plane>& planes) {
   }
 
   return false;
+}
+
+bool TangoHandler::getPlaneDeltas(PlaneDeltas& planeDeltas) {
+  if (!connected)
+  {
+    return false;
+  }
+
+  std::vector<Plane> planes;
+  getPlanes(planes);
+
+  // Find all the planes that have been added or changed this frame.
+  std::unordered_map<long, Plane> planeMapNew;
+  for (auto plane : planes) {
+    planeMapNew[plane.identifier] = plane;
+    // Check if this is a plane we already know about.
+    auto prev = planeMap.find(plane.identifier);
+    if (prev != planeMap.end()) {
+      // This is an existing plane. Has it changed?
+      Plane existing = prev->second;
+      if (existing.timestamp != plane.timestamp) {
+        // The plane has a new timestamp, thus it has changed.
+        planeDeltas.updated.push_back(plane);
+      }
+    } else {
+      // This is a new plane.
+      planeDeltas.added.push_back(plane);
+    }
+  }
+
+  // Check for all previous planes in the new map to see if they have been removed.
+  for (auto it : planeMap) {
+    if (planeMapNew.find(it.first) == planeMapNew.end()) {
+      planeDeltas.removed.push_back(it.first);
+    }
+  }
+
+  planeMap = planeMapNew;
+
+  return true;
 }
 
 void TangoHandler::resetPose()

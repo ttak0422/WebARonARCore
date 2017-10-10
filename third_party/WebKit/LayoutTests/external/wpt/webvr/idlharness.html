@@ -225,6 +225,17 @@ dictionary VRDisplayEventInit : EventInit {
   VRDisplayEventReason reason;
 };
 
+[Constructor(DOMString type, VRPlaneEventInit eventInitDict)]
+interface VRPlaneEvent : Event {
+  readonly attribute VRDisplay display;
+  readonly attribute sequence<VRPlane> planes;
+};
+
+dictionary VRPlaneEventInit : EventInit {
+  required VRDisplay display;
+  required sequence<VRPlane> planes;
+};
+
 partial interface Window {
   attribute EventHandler onvrdisplayconnect;
   attribute EventHandler onvrdisplaydisconnect;

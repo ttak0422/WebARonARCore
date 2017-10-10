@@ -140,6 +140,10 @@ class VRDisplay final : public EventTargetWithInlineData,
   void OnActivate(device::mojom::blink::VRDisplayEventReason) override;
   void OnDeactivate(device::mojom::blink::VRDisplayEventReason) override;
 
+  void dispatchPlaneEvent(const AtomicString& eventName, HeapVector<Member<VRPlane>>& vrPlanes);
+  void dispatchPlaneEvent(const AtomicString& eventName, WTF::Vector<device::mojom::blink::VRPlanePtr>& planes);
+  void updatePlanes();
+
   ScriptedAnimationController& ensureScriptedAnimationController(Document*);
 
   Member<NavigatorVR> m_navigatorVR;
@@ -180,6 +184,8 @@ class VRDisplay final : public EventTargetWithInlineData,
   mojo::Binding<device::mojom::blink::VRDisplayClient> m_binding;
 
   HeapDeque<Member<ScriptPromiseResolver>> m_pendingPresentResolvers;
+
+  HeapVector<Member<VRPlane>> planes;
 };
 
 using VRDisplayVector = HeapVector<Member<VRDisplay>>;
