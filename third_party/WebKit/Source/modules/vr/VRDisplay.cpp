@@ -26,6 +26,7 @@
 #include "modules/vr/VRHit.h"
 #include "modules/vr/VRPassThroughCamera.h"
 #include "modules/vr/VRPlane.h"
+#include "modules/vr/VRPlaneEvent.h"
 #include "modules/webgl/WebGLRenderingContextBase.h"
 #include "platform/Histogram.h"
 #include "platform/UserGestureIndicator.h"
@@ -155,13 +156,6 @@ void VRDisplay::disconnected() {
 
 bool VRDisplay::getFrameData(VRFrameData* frameData) {
   updatePose();
-  // TODO: figure out how to query and call event listeners.
-  // if (hasEventListener('onPlaneAdded')) {
-  //   planeDeltas = m_display->GetPlaneDeltas();
-  //   for (plane in planes) {
-  //     // check if plane has changed and fire events.
-  //   }
-  //}
 
   if (!m_framePose)
     return false;
@@ -188,6 +182,9 @@ VRPose* VRDisplay::getPose() {
 }
 
 void VRDisplay::updatePose() {
+  // Update the planes.
+  updatePlanes();
+
   if (m_displayBlurred) {
     // WebVR spec says to return a null pose when the display is blurred.
     m_framePose = nullptr;
@@ -234,25 +231,65 @@ HeapVector<Member<VRHit>> VRDisplay::hitTest(float x, float y) {
 }
 
 HeapVector<Member<VRPlane>> VRDisplay::getPlanes() {
-  HeapVector<Member<VRPlane>> planes;
+  return planes;
+}
 
-  if (!m_display) {
-    return planes;
+void VRDisplay::dispatchPlaneEvent(const AtomicString& eventName, HeapVector<Member<VRPlane>>& vrPlanes) {
+  if (vrPlanes.size() > 0 && hasEventListeners(eventName)) {
+    dispatchEvent(VRPlaneEvent::create(
+        eventName, true, false, this, vrPlanes));
   }
+}
 
-  Vector<device::mojom::blink::VRPlanePtr> planePtrs;
-  m_display->GetPlanes(&planePtrs);
-  if (planePtrs.size() > 0)
-  {
-    planes.resize(planePtrs.size());
-    for (size_t i = 0; i < planePtrs.size(); i++)
+void VRDisplay::dispatchPlaneEvent(const AtomicString& eventName, WTF::Vector<device::mojom::blink::VRPlanePtr>& planes) {
+  if (planes.size() > 0 && hasEventListeners(eventName)) {
+    HeapVector<Member<VRPlane>> vrPlanes;
+    for (auto& plane : planes)
     {
-      VRPlane* plane = new VRPlane();
-      plane->setPlane(planePtrs[i]);
-      planes[i] = plane;
+      VRPlane* vrPlane = new VRPlane();
+      vrPlane->setPlane(plane);
+      vrPlanes.push_back(vrPlane);
+    }
+    dispatchPlaneEvent(eventName, vrPlanes);
+  }
+}
+
+void VRDisplay::updatePlanes() {
+  device::mojom::blink::VRPlaneDeltasPtr planeDeltas;
+  m_display->GetPlaneDeltas(&planeDeltas);
+
+  if (planeDeltas->removed.size() > 0) {
+    HeapVector<Member<VRPlane>> vrPlanesRemoved;
+    vrPlanesRemoved.reserveCapacity(planeDeltas->removed.size());
+    for (auto removed : planeDeltas->removed) {
+      for (size_t i = 0; i < planes.size();) {
+        if (planes[i]->identifier() == removed) {
+          vrPlanesRemoved.push_back(planes[i]);
+          planes.remove(i);
+        } else {
+          i++;
+        }
+      }
+    }
+    dispatchPlaneEvent(EventTypeNames::planesremoved, vrPlanesRemoved);
+  }
+  
+  for (auto& updated : planeDeltas->updated) {
+    for (auto plane : planes) {
+      if (plane->identifier() == updated->identifier) {
+        plane->setPlane(updated);
+      }
     }
   }
-  return planes;
+  dispatchPlaneEvent(EventTypeNames::planesupdated, planeDeltas->updated);
+
+  planes.reserveCapacity(planeDeltas->added.size() + planes.size());
+  for (auto& added : planeDeltas->added) {
+    VRPlane* plane = new VRPlane();
+    plane->setPlane(added);
+    planes.push_back(plane);
+  }
+  dispatchPlaneEvent(EventTypeNames::planesadded, planeDeltas->added);
 }
 
 VRPassThroughCamera* VRDisplay::getPassThroughCamera()

@@ -27,7 +27,7 @@ class TangoVRDevice : public VRDevice {
   void ResetPose() override;
   mojom::VRPassThroughCameraPtr GetPassThroughCamera() override;
   std::vector<mojom::VRHitPtr> HitTest(float x, float y) override;
-  std::vector<mojom::VRPlanePtr> GetPlanes() override;
+  mojom::VRPlaneDeltasPtr GetPlaneDeltas() override;
 
   void RequestPresent(const base::Callback<void(bool)>& callback) override;
   void SetSecureOrigin(bool secure_origin) override;
@@ -37,6 +37,7 @@ class TangoVRDevice : public VRDevice {
                          mojom::VRLayerBoundsPtr right_bounds) override;
 
  private:
+
   TangoCoordinateFramePair tangoCoordinateFramePair;
   TangoVRDeviceProvider* tangoVRDeviceProvider;
 

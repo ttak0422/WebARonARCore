@@ -233,8 +233,8 @@ std::vector<mojom::VRHitPtr> GvrDevice::HitTest(float x, float y)
   return hits;
 }
 
-std::vector<mojom::VRPlanePtr> GvrDevice::GetPlanes() {
-  std::vector<mojom::VRPlanePtr> planes;
+mojom::VRPlaneDeltasPtr GvrDevice::GetPlaneDeltas() {
+  mojom::VRPlaneDeltasPtr planes = nullptr;
   return planes;
 }
 

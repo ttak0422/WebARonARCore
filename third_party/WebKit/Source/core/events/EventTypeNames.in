@@ -167,6 +167,9 @@ paste
 pause
 paymentrequest
 periodicsync
+planesadded
+planesupdated
+planesremoved
 play
 playing
 pointercancel
