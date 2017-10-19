@@ -182,22 +182,27 @@ VRPose* VRDisplay::getPose() {
 }
 
 void VRDisplay::updatePose() {
-  // Update the planes.
-  updatePlanes();
-
   if (m_displayBlurred) {
     // WebVR spec says to return a null pose when the display is blurred.
     m_framePose = nullptr;
     return;
   }
   if (m_canUpdateFramePose) {
-    if (!m_display)
+    if (!m_display) {
       return;
+    }
     device::mojom::blink::VRPosePtr pose;
     m_display->GetPose(&pose);
     m_framePose = std::move(pose);
-    if (m_isPresenting)
+
+    // We are making this call here because ARCore doesn't have events
+    // for planes and so we need to update planes each frame. We are assuming
+    // that update pose is called each frame on all AR apps.
+    updatePlanes();
+
+    if (m_isPresenting) {
       m_canUpdateFramePose = false;
+    }
   }
 }
 
@@ -231,7 +236,7 @@ HeapVector<Member<VRHit>> VRDisplay::hitTest(float x, float y) {
 }
 
 HeapVector<Member<VRPlane>> VRDisplay::getPlanes() {
-  return planes;
+  return m_planes;
 }
 
 void VRDisplay::dispatchPlaneEvent(const AtomicString& eventName, HeapVector<Member<VRPlane>>& vrPlanes) {
@@ -241,13 +246,13 @@ void VRDisplay::dispatchPlaneEvent(const AtomicString& eventName, HeapVector<Mem
   }
 }
 
-void VRDisplay::dispatchPlaneEvent(const AtomicString& eventName, WTF::Vector<device::mojom::blink::VRPlanePtr>& planes) {
-  if (planes.size() > 0 && hasEventListeners(eventName)) {
+void VRDisplay::dispatchPlaneEvent(const AtomicString& eventName, WTF::Vector<device::mojom::blink::VRPlanePtr>& mojomPlanes) {
+  if (mojomPlanes.size() > 0 && hasEventListeners(eventName)) {
     HeapVector<Member<VRPlane>> vrPlanes;
-    for (auto& plane : planes)
+    for (auto& mojomPlane : mojomPlanes)
     {
       VRPlane* vrPlane = new VRPlane();
-      vrPlane->setPlane(plane);
+      vrPlane->setPlane(mojomPlane);
       vrPlanes.push_back(vrPlane);
     }
     dispatchPlaneEvent(eventName, vrPlanes);
@@ -257,15 +262,18 @@ void VRDisplay::dispatchPlaneEvent(const AtomicString& eventName, WTF::Vector<de
 void VRDisplay::updatePlanes() {
   device::mojom::blink::VRPlaneDeltasPtr planeDeltas;
   m_display->GetPlaneDeltas(&planeDeltas);
+  if (!planeDeltas) {
+    return;
+  }
 
   if (planeDeltas->removed.size() > 0) {
     HeapVector<Member<VRPlane>> vrPlanesRemoved;
     vrPlanesRemoved.reserveCapacity(planeDeltas->removed.size());
     for (auto removed : planeDeltas->removed) {
-      for (size_t i = 0; i < planes.size();) {
-        if (planes[i]->identifier() == removed) {
-          vrPlanesRemoved.push_back(planes[i]);
-          planes.remove(i);
+      for (size_t i = 0; i < m_planes.size();) {
+        if (m_planes[i]->identifier() == removed) {
+          vrPlanesRemoved.push_back(m_planes[i]);
+          m_planes.remove(i);
         } else {
           i++;
         }
@@ -275,7 +283,7 @@ void VRDisplay::updatePlanes() {
   }
   
   for (auto& updated : planeDeltas->updated) {
-    for (auto plane : planes) {
+    for (auto plane : m_planes) {
       if (plane->identifier() == updated->identifier) {
         plane->setPlane(updated);
       }
@@ -283,11 +291,11 @@ void VRDisplay::updatePlanes() {
   }
   dispatchPlaneEvent(EventTypeNames::planesupdated, planeDeltas->updated);
 
-  planes.reserveCapacity(planeDeltas->added.size() + planes.size());
+  m_planes.reserveCapacity(planeDeltas->added.size() + m_planes.size());
   for (auto& added : planeDeltas->added) {
     VRPlane* plane = new VRPlane();
     plane->setPlane(added);
-    planes.push_back(plane);
+    m_planes.push_back(plane);
   }
   dispatchPlaneEvent(EventTypeNames::planesadded, planeDeltas->added);
 }
@@ -889,6 +897,7 @@ DEFINE_TRACE(VRDisplay) {
   visitor->trace(m_scriptedAnimationController);
   visitor->trace(m_pendingPresentResolvers);
   visitor->trace(m_passThroughCamera);
+  visitor->trace(m_planes);
 }
 
 }  // namespace blink
