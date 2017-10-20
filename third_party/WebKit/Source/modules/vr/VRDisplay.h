@@ -185,7 +185,7 @@ class VRDisplay final : public EventTargetWithInlineData,
 
   HeapDeque<Member<ScriptPromiseResolver>> m_pendingPresentResolvers;
 
-  HeapVector<Member<VRPlane>> planes;
+  HeapVector<Member<VRPlane>> m_planes;
 };
 
 using VRDisplayVector = HeapVector<Member<VRDisplay>>;
